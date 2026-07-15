@@ -16,3 +16,4 @@ django-csp==4.0
 requests==2.32.3
 PyJWT==2.10.1
 whitenoise==6.9.0
+resend==2.33.0

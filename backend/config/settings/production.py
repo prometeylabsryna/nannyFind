@@ -16,13 +16,7 @@ X_FRAME_OPTIONS = "DENY"
 SESSION_COOKIE_SAMESITE = "Strict"
 CSRF_COOKIE_SAMESITE = "Strict"
 
-EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = config("EMAIL_HOST", default="")
-EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@pomich-poruch.com.ua")
-SERVER_EMAIL = config("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
+# Листи шле apps.core.email_service через Resend (RESEND_API_KEY, DEFAULT_FROM_EMAIL — у base.py).
+SERVER_EMAIL = config("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)  # noqa: F405
 
 LOGGING["root"]["level"] = config("LOG_LEVEL", default="WARNING")  # noqa: F405

@@ -9,4 +9,5 @@ INSTALLED_APPS += ["whitenoise.runserver_nostatic"]  # noqa: F405
 
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")  # noqa: F405
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Листи шле apps.core.email_service через Resend. Якщо RESEND_API_KEY
+# не задано (типово для develop) — лист пишеться в лог замість відправки.

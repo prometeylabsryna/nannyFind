@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -23,6 +22,7 @@ from apps.accounts.serializers import (
     RegisterSerializer,
     UserSerializer,
 )
+from apps.core.email_service import send_email
 
 User = get_user_model()
 
@@ -129,12 +129,10 @@ class PasswordResetRequestView(APIView):
                 f"{settings.FRONTEND_URL.rstrip('/')}/reset-password"
                 f"?uid={uid}&token={token}"
             )
-            send_mail(
+            send_email(
                 "Скидання пароля — Поміч поруч",
-                f"Посилання для скидання: {reset_url}",
-                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
-                fail_silently=False,
+                f"Посилання для скидання: {reset_url}",
             )
         return Response({"detail": "Якщо email існує, лист надіслано."})
 

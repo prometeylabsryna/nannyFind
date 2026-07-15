@@ -106,8 +106,10 @@ nano backend/.env
 - `RUN_SEED_DEMO=false` (demo-дані НЕ для продакшн)
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — не критично, реального адміна створимо окремо (крок 7)
 
-SMTP (`EMAIL_HOST*`) поки можна лишити порожнім — сайт запрацює, але лист
-«скидання пароля» не надійде, доки не додасте реального SMTP-провайдера.
+`RESEND_API_KEY` поки можна лишити порожнім — сайт запрацює, але лист
+«скидання пароля» не надійде (лише запишеться в лог), доки не додасте
+реальний API-ключ [Resend](https://resend.com) і не верифікуєте домен
+(`DEFAULT_FROM_EMAIL`) через DNS (SPF/DKIM) у панелі Resend.
 
 ## 5. Перший деплой (HTTP, до SSL)
 
@@ -234,7 +236,7 @@ crontab -e
 | HTTPS не працює, HTTP ОК | Забули перемкнутись з `docker-compose.ssl-bootstrap.yml` на звичайний `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d --build` (без bootstrap-override) |
 | DB connection refused | `backend` стартував раніше `db` | вже є `depends_on: condition: service_healthy` — перевір `docker compose logs db` |
 | Зміни `.py`/`requirements.txt` не діють після деплою | `up -d` без `--build` | завжди `deploy.sh` (робить build) |
-| Лист «скидання пароля» не приходить | SMTP не налаштований (`EMAIL_HOST` порожній) | додати реального SMTP-провайдера в `.env` |
+| Лист «скидання пароля» не приходить | `RESEND_API_KEY` не заданий або домен не верифікований | додати ключ Resend у `.env` і верифікувати домен (SPF/DKIM) у панелі Resend |
 
 ## Пов'язані файли
 

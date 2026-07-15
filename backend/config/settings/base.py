@@ -205,6 +205,7 @@ else:
     PAYMENTS_STUB_MODE = _payments_stub_raw.lower() in ("1", "true", "yes")
 
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@pomich-poruch.com.ua")
+RESEND_API_KEY = config("RESEND_API_KEY", default="")
 
 LOGGING = {
     "version": 1,

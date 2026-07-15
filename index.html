@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Поміч поруч — Пошук нянь</title>
+  <meta name="description" content="Маркетплейс пошуку нянь в Україні">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" sizes="180x180">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/globals.css">
+  
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/nanny.css">
+  <link rel="stylesheet" href="/css/calendar.css">
+  <link rel="stylesheet" href="/css/datepicker.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/documents.css">
+  <link rel="stylesheet" href="/css/page-decor.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+</head>
+<body>
+  <div id="site-header" hx-get="/partials/header.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <main>
+<section class="hero" data-cms-section="home.hero_section_visible"><div class="hero-bg"></div><div class="container hero-grid">
+  <div>
+    <h1 class="hero-title" data-cms="home.hero_title_html" data-cms-html="1">Надійна <em>няня поруч</em> — для вашої родини</h1>
+    <p class="hero-subtitle" data-cms="home.hero_subtitle">Знайдіть перевіреного помічника за лічені хвилини. Безпечний пошук, прозорі профілі та зручний чат.</p>
+    <form class="hero-search" action="/nanny/" method="get">
+      <div class="hero-search-grid">
+        <div><label class="label" data-cms="home.search_city_label">🏙 Місто</label>
+          <select class="field" name="city"><option value="">Оберіть місто</option>
+            <option>Київ</option><option>Львів</option><option>Дніпро</option></select></div>
+        <div><label class="label" data-cms="home.search_date_label">📅 Дата</label><input type="date" class="field" name="date"></div>
+        <div><label class="label" data-cms="home.search_format_label">Формат</label>
+          <select class="field" name="format"><option value="hourly">Погодинно</option><option value="daily">На день</option><option value="live-in">Проживання</option></select></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:1rem" data-cms="home.search_submit">🔍 Знайти няню</button>
+    </form>
+  </div>
+  <div class="hero-visual">
+    <img src="/images/hero_nanny.png" alt="Няня з дитиною" width="600" height="750" data-cms="home.hero_image_alt" data-cms-attr="alt">
+    <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">500+ перевірених нянь</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">У 5 містах України</span></div></div>
+  </div>
+</div></section>
+<section style="padding:4rem 0" data-cms-section="home.benefits_section_visible"><div class="container grid-4" id="benefits"></div></section>
+<section style="padding:4rem 0;background:white" data-cms-section="home.steps_section_visible"><div class="container">
+  <h2 class="section-title" style="text-align:center" data-cms="home.steps_title">Як це працює</h2>
+  <p class="section-subtitle" style="text-align:center;margin:0 auto 2rem" data-cms="home.steps_subtitle">Чотири простих кроки</p>
+  <div class="grid-4" id="steps"></div>
+</div></section>
+<section style="padding:4rem 0" data-cms-section="home.featured_section_visible"><div class="container">
+  <h2 class="section-title" style="text-align:center" data-cms="home.featured_title">Популярні няні</h2>
+  <div class="nannies-grid nannies-grid--4" id="home-nannies"></div>
+  <div style="text-align:center;margin-top:1.5rem">
+    <a href="/nanny/" class="btn btn-secondary" data-cms="home.featured_cta">Усі профілі</a>
+  </div>
+</div></section>
+<section style="padding:3rem 0;background:white;text-align:center" data-cms-section="home.cities_section_visible"><div class="container">
+  <h2 class="section-title" data-cms="home.cities_title">Няні у вашому місті</h2>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.75rem;margin-top:1rem">
+    <a href="/city/kyiv/" class="btn btn-secondary" data-cms="home.city_kyiv_label">Київ</a>
+    <a href="/city/lviv/" class="btn btn-secondary" data-cms="home.city_lviv_label">Львів</a>
+    <a href="/city/dnipro/" class="btn btn-secondary" data-cms="home.city_dnipro_label">Дніпро</a>
+  </div>
+</div></section>
+<div class="sticky-cta"><a href="/nanny/" class="btn btn-primary btn-block" data-cms="home.sticky_cta_label">Знайти няню</a></div>
+</main>
+  <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <script src="/js/routes.js"></script>
+  <script src="/js/mock-data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/roles.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/datepicker.js"></script>
+  <script src="/js/validation.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cabinet-core.js"></script>
+  <script src="/js/cabinet-parent.js"></script>
+  <script src="/js/cabinet-nanny.js"></script>
+  <script src="/js/cabinet-admin.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/content-loader.js"></script>
+  <script src="/js/site-content.js"></script>
+  <script src="/js/custom-select.js"></script>
+  <script src="/js/app.js"></script>
+  
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+      PP.afterPartialSwap?.(e.detail.target);
+      if (e.detail.target.id === 'site-header') PP.initLayout();
+    });
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (PP.loadSiteContent) await PP.loadSiteContent();
+      PP.initLayout();
+      PP.initCookie();
+      
+      PP.renderHomeBenefits?.(); PP.renderHomeSteps?.();
+      PP.loadCities(); PP.loadHomeNannies();
+
+    });
+  </script>
+</body>
+</html>

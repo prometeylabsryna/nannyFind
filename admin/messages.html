@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Повідомлення — Адмін</title>
+  <meta name="description" content="">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" sizes="180x180">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/globals.css">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/nanny.css">
+  <link rel="stylesheet" href="/css/calendar.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/documents.css">
+  <link rel="stylesheet" href="/css/page-decor.css">
+  <link rel="stylesheet" href="/css/cabinet.css">
+  <link rel="stylesheet" href="/css/chat1.css">
+  <link rel="stylesheet" href="/css/chat2.css">
+  <link rel="stylesheet" href="/css/payments.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+</head>
+<body>
+  <div id="site-header" hx-get="/partials/header.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <main>
+<div class="container cabinet-layout admin-layout">
+  <div class="cabinet-mobile-nav" id="admin-mobile-nav"></div>
+  <aside class="cabinet-sidebar admin-sidebar"><nav class="card" id="admin-nav"></nav></aside>
+  <div class="admin-main cabinet-chat-wrap">
+    <h1 class="cabinet-title">Повідомлення</h1>
+    <p class="cabinet-subtitle">Листування з нянями від імені підтримки платформи</p>
+    <div class="card chat-layout chat-mode-list">
+      <div class="chat-list-panel">
+        <div class="chat-list-toolbar">
+          <a class="chat-nav-home" href="/admin/" aria-label="До кабінету">←</a>
+          <h1 class="chat-list-title">Повідомлення</h1>
+        </div>
+        <div class="chat-list"></div>
+      </div>
+      <div class="chat-window">
+        <div class="chat-header">Повідомлення</div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <form class="chat-input-bar" id="chat-form">
+          <input type="file" hidden accept="image/*,.pdf,.doc,.docx">
+          <button type="button" class="chat-attach" aria-label="Вкладення">📎</button>
+          <input class="field" type="text" placeholder="Повідомлення" enterkeyhint="send" autocomplete="off">
+          <button type="submit" class="btn btn-primary" aria-label="Надіслати">→</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+  <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <script src="/js/routes.js"></script>
+  <script src="/js/mock-data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/roles.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/validation.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cabinet-core.js"></script>
+  <script src="/js/cabinet-parent.js"></script>
+  <script src="/js/cabinet-nanny.js"></script>
+  <script src="/js/cabinet-admin.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/content-loader.js"></script>
+  <script src="/js/site-content.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chat-realtime.js"></script>
+  <script src="/js/chat-ui.js"></script>
+  <script src="/js/chat.js"></script>
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+      PP.afterPartialSwap?.(e.detail.target);
+      if (e.detail.target.id === 'site-header') PP.initLayout();
+    });
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (PP.loadSiteContent) await PP.loadSiteContent();
+      PP.initLayout();
+      PP.initCookie();
+      PP.initCabinetPage();
+    });
+  </script>
+</body>
+</html>

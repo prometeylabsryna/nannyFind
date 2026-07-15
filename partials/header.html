@@ -1,0 +1,61 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="header-logo">
+      <img
+        src="/images/logo.png"
+        alt=""
+        class="header-logo-icon"
+        width="40"
+        height="40"
+        decoding="async"
+        fetchpriority="high"
+      >
+      <span class="header-logo-text">
+        <span class="header-logo-uk" data-cms="site.header_brand_uk">Поміч поруч</span>
+        <span class="brand-en" aria-label="Help at hand">
+          <span class="brand-en-help">Help</span><span class="brand-en-at"> at </span><span class="brand-en-hand">hand</span>
+        </span>
+      </span>
+    </a>
+    <nav class="header-nav" aria-label="Головна навігація">
+      <a href="/" data-cms="site.header_nav_home">Головна</a>
+      <a href="/how-it-works" data-cms="site.header_nav_how">Як це працює</a>
+      <a href="/nanny/" data-cms="site.header_nav_catalog">Каталог нянь</a>
+      <a href="/blog/" data-cms="site.header_nav_blog">Блог</a>
+      <a href="/faq/" data-cms="site.header_nav_faq">FAQ</a>
+      <a href="/contacts" data-cms="site.header_nav_contacts">Контакти</a>
+    </nav>
+    <div class="header-actions">
+      <span class="header-role-badge" id="header-role-badge" data-role="guest" title="Перегляд без реєстрації">Гість</span>
+      <a href="/nanny/" class="btn btn-primary header-search-btn">
+        <span data-cms="site.header_btn_search">🔍 Знайти няню</span>
+      </a>
+      <a href="/register" class="btn btn-secondary header-register-btn" id="register-link" data-cms="site.header_btn_register">Реєстрація</a>
+      <button type="button" class="btn btn-secondary header-logout-btn" id="logout-btn" title="Вийти з акаунта" hidden>Вийти</button>
+      <a href="/login" class="btn btn-secondary header-cabinet-btn" id="cabinet-link" data-cms="site.header_btn_login">Увійти</a>
+      <button type="button" class="header-burger" id="menu-open" aria-label="Меню">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="header-mobile-menu" id="mobile-menu" role="dialog" aria-modal="true">
+  <div class="header-mobile-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <strong data-cms="site.header_mobile_menu">Меню</strong>
+      <button type="button" class="header-burger" id="menu-close" aria-label="Закрити">✕</button>
+    </div>
+    <a href="/" class="header-mobile-link" data-cms="site.header_nav_home">Головна</a>
+    <a href="/how-it-works" class="header-mobile-link" data-cms="site.header_nav_how">Як це працює</a>
+    <a href="/nanny/" class="header-mobile-link" data-cms="site.header_nav_catalog">Каталог нянь</a>
+    <a href="/blog/" class="header-mobile-link" data-cms="site.header_nav_blog">Блог</a>
+    <a href="/faq/" class="header-mobile-link" data-cms="site.header_nav_faq">FAQ</a>
+    <a href="/contacts" class="header-mobile-link" data-cms="site.header_nav_contacts">Контакти</a>
+    <p class="header-role-badge header-role-badge--mobile" id="header-role-badge-mobile" data-role="guest">Гість</p>
+    <div class="header-mobile-actions">
+      <a href="/register" class="btn btn-secondary btn-block" id="register-link-mobile" data-cms="site.header_btn_register">Реєстрація</a>
+      <a href="/login" class="btn btn-secondary btn-block" id="cabinet-link-mobile" data-cms="site.header_btn_login">Увійти</a>
+      <button type="button" class="btn btn-secondary btn-block header-logout-btn" id="logout-btn-mobile" hidden>Вийти</button>
+      <a href="/nanny/" class="btn btn-primary btn-block" data-cms="site.header_btn_search">🔍 Знайти няню</a>
+    </div>
+  </div>
+</div>

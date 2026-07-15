@@ -1,0 +1,23 @@
+# Override для ПЕРШОГО деплою — до видачі SSL-сертифікатів.
+# Піднімає nginx лише на HTTP (порт 80), без ssl-директив, щоб можна було:
+#   1) відкрити сайт по домену/IP і перевірити healthz;
+#   2) звільнити порт 80 для `certbot certonly --standalone` (init-ssl.sh).
+#
+# Використання:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.ssl-bootstrap.yml up -d --build
+#
+# Після видачі сертифікатів — повернутись на звичайний:
+#   docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  nginx:
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/http:/etc/nginx/conf.d:ro
+      - static_data:/app/staticfiles:ro
+      - media_data:/app/media:ro
+
+volumes:
+  static_data:
+  media_data:

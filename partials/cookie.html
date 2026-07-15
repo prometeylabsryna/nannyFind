@@ -1,0 +1,20 @@
+<div class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Cookies">
+  <div class="cookie-inner">
+    <strong data-cms="site.cookie_title">🍪 Ми використовуємо cookies</strong>
+    <p style="font-size:0.875rem;color:var(--text-muted);margin:0.5rem 0">
+      <span data-cms="site.cookie_body">Відповідно до ЗУ «Про захист персональних даних» та GDPR.</span>
+      <a href="/cookie-policy" style="color:var(--calm-dark)" data-cms="site.cookie_body_link">Детальніше</a>
+    </p>
+    <div class="cookie-actions">
+      <button type="button" class="btn btn-primary" id="cookie-accept" data-cms="site.cookie_accept">Прийняти всі</button>
+      <button type="button" class="btn btn-secondary" id="cookie-reject" data-cms="site.cookie_reject">Лише необхідні</button>
+      <button type="button" class="btn btn-ghost" id="cookie-settings-btn" data-cms="site.cookie_settings">Налаштування</button>
+    </div>
+    <div class="cookie-settings hidden" id="cookie-settings">
+      <label class="cookie-toggle"><span data-cms="site.cookie_toggle_necessary">Необхідні</span><input type="checkbox" checked disabled></label>
+      <label class="cookie-toggle"><span data-cms="site.cookie_toggle_analytics">Аналітика</span><input type="checkbox" id="cookie-analytics"></label>
+      <label class="cookie-toggle"><span data-cms="site.cookie_toggle_marketing">Маркетинг</span><input type="checkbox" id="cookie-marketing"></label>
+      <button type="button" class="btn btn-primary" id="cookie-save" style="margin-top:0.75rem" data-cms="site.cookie_save">Зберегти</button>
+    </div>
+  </div>
+</div>

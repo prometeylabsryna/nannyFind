@@ -1,0 +1,15 @@
+{
+  "name": "pomich-poruch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Поміч поруч — HTML + HTMX + JS",
+  "scripts": {
+    "dev": "python3 scripts/dev_server.py",
+    "dev:api": "cd backend && python3 manage.py runserver 8001",
+    "dev:persist": "bash scripts/start_dev.sh start",
+    "dev:stop": "bash scripts/start_dev.sh stop",
+    "dev:status": "bash scripts/start_dev.sh status",
+    "dev:install": "bash scripts/install_dev_service.sh",
+    "generate": "python3 scripts/generate_public.py && python3 scripts/generate_cabinet_admin.py"
+  }
+}

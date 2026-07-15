@@ -1,0 +1,19 @@
+.run/
+backend/.env
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/media/
+backend/staticfiles/
+backend/.pytest_cache/
+*.pyc
+
+# Випадкові сторонні артефакти (npm/next не належать цьому статичному сайту)
+.next/
+.npm-cache/
+node_modules/
+.DS_Store
+
+# Продакшн-секрети
+.env
+.env.production

@@ -1,0 +1,121 @@
+/* Chat mobile / tablet — Поміч поруч */
+/* ── Mobile fullscreen messenger ── */
+@media (max-width: 767px) {
+  body.pp-chat-page {
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    height: 100%;
+    height: 100dvh;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+
+  body.pp-chat-page #site-header,
+  body.pp-chat-page #site-footer,
+  body.pp-chat-page .cabinet-mobile-nav,
+  body.pp-chat-page .cabinet-sidebar,
+  body.pp-chat-page .cabinet-drawer-backdrop,
+  body.pp-chat-page .cabinet-nav-toggle,
+  body.pp-chat-page .cabinet-title,
+  body.pp-chat-page .cabinet-subtitle {
+    display: none;
+  }
+
+  body.pp-chat-page main {
+    height: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  body.pp-chat-page .container.cabinet-layout,
+  body.pp-chat-page .cabinet-layout {
+    padding: 0;
+    height: 100%;
+    max-width: none;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body.pp-chat-page .container {
+    max-width: none;
+    padding-inline: 0;
+    height: 100%;
+  }
+
+  body.pp-chat-page .cabinet-chat-wrap,
+  body.pp-chat-page .admin-main.cabinet-chat-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    max-height: calc(100dvh - var(--chat-keyboard-offset, 0px));
+    padding: 0;
+    overflow: hidden;
+    background: var(--white);
+  }
+
+  body.pp-chat-page .chat-layout {
+    height: 100%;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--white);
+  }
+
+  body.pp-chat-page .chat-layout.card {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  body.pp-chat-page .chat-layout.chat-mode-list .chat-window { display: none; }
+  body.pp-chat-page .chat-layout.chat-mode-thread .chat-list-panel { display: none; }
+
+  .chat-list-toolbar { display: flex; }
+
+  .chat-list-panel,
+  .chat-window {
+    height: 100%;
+  }
+
+  .chat-header {
+    padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
+  }
+
+  .chat-msg {
+    max-width: min(88%, 20rem);
+  }
+
+  .chat-attach-photo { max-width: 12rem; }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .chat-layout {
+    height: calc(100dvh - var(--header-h) - 6rem - var(--chat-keyboard-offset, 0px));
+  }
+
+  .chat-msg { max-width: min(72%, 22rem); }
+}
+
+@supports (height: 100svh) {
+  @media (max-width: 767px) {
+    body.pp-chat-page,
+    body.pp-chat-page main,
+    body.pp-chat-page .cabinet-chat-wrap {
+      height: 100svh;
+      max-height: calc(100svh - var(--chat-keyboard-offset, 0px));
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  html.pp-chat-page {
+    height: 100%;
+    overflow: hidden;
+  }
+}

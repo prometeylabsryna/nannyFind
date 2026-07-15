@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Послуги</title>
+  <meta name="description" content="Формати та тарифи">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" sizes="180x180">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/globals.css">
+  
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/nanny.css">
+  <link rel="stylesheet" href="/css/calendar.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/documents.css">
+  <link rel="stylesheet" href="/css/page-decor.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+</head>
+<body>
+  <div id="site-header" hx-get="/partials/header.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <main><div class="page-backdrop"><div class="page-decor" aria-hidden="true">
+  <div class="page-decor-dots"></div>
+  <span class="page-decor-blob page-decor-blob--1"></span>
+  <span class="page-decor-blob page-decor-blob--2"></span>
+  <span class="page-decor-blob page-decor-blob--3"></span>
+  <span class="page-decor-blob page-decor-blob--4"></span>
+  <span class="page-decor-ring page-decor-ring--1"></span>
+  <span class="page-decor-ring page-decor-ring--2"></span>
+  <span class="page-decor-wave"></span>
+  <span class="page-decor-icon page-decor-icon--shield">🛡</span>
+  <span class="page-decor-icon page-decor-icon--heart">💚</span>
+  <span class="page-decor-icon page-decor-icon--star">✦</span>
+  <span class="page-decor-icon page-decor-icon--baby">👶</span>
+  <span class="page-decor-icon page-decor-icon--home">🏠</span>
+</div><div class="page-backdrop-content">
+<section class="page-hero"><div class="page-hero-bg page-hero-bg--animated"></div><div class="container page-hero-inner">
+  <h1 class="page-hero-title">Послуги</h1></div></section>
+<div class="container" style="padding:3rem 1rem"><div class="grid-3" id="services-grid"></div>
+<h2 class="section-title" style="margin-top:3rem">Тарифи</h2><div class="pricing-grid" id="pricing-grid"></div></div>
+</div></div></main>
+  <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <script src="/js/routes.js"></script>
+  <script src="/js/mock-data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/roles.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/validation.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cabinet-core.js"></script>
+  <script src="/js/cabinet-parent.js"></script>
+  <script src="/js/cabinet-nanny.js"></script>
+  <script src="/js/cabinet-admin.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/content-loader.js"></script>
+  <script src="/js/site-content.js"></script>
+  <script src="/js/app.js"></script>
+  
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+      PP.afterPartialSwap?.(e.detail.target);
+      if (e.detail.target.id === 'site-header') PP.initLayout();
+    });
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (PP.loadSiteContent) await PP.loadSiteContent();
+      PP.initLayout();
+      PP.initCookie();
+      
+  document.getElementById('services-grid').innerHTML=['Погодинний догляд','Догляд на день','Няня з проживанням','Вихідні','Супровід 50–60+'].map((t,i)=>'<div class="card service-card" style="padding:1.5rem"><h3>'+t+'</h3><a href="/nanny/" class="btn btn-secondary btn-block" style="margin-top:1rem">Знайти</a></div>').join('');
+  var pricingGrid=document.getElementById('pricing-grid');
+  var renderPricing=function(plans){
+    pricingGrid.innerHTML=plans.map(function(p){
+      return '<div class="card pricing-card'+(p.featured?' featured':'')+'"><h3>'+p.title+'</h3><div class="pricing-price">'+PP.formatPrice(p.price)+'</div><p style="font-size:0.875rem;color:var(--text-muted);flex:1">'+(p.desc||'')+'</p><a href="/cabinet/parent/payments" class="btn btn-primary btn-block">Обрати</a></div>';
+    }).join('');
+  };
+  try {
+    var plans = await PP.fetchPricing();
+    renderPricing(plans && plans.length ? plans : PP.PRICING);
+  } catch (e) {
+    renderPricing(PP.PRICING);
+  }
+
+    });
+  </script>
+</body>
+</html>

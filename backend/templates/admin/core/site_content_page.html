@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/admin/site_content.css' %}?v=2">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="px-4 py-3 lg:px-8">
+  <div class="flex flex-wrap items-center gap-2 text-sm text-font-subtle-light dark:text-font-subtle-dark">
+    <a href="{% url 'admin:index' %}">Головна</a>
+    <span aria-hidden="true">›</span>
+    <span>Тексти сайту</span>
+    <span aria-hidden="true">›</span>
+    <span>{{ title }}</span>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="site-content-editor px-4 pb-8 lg:px-8">
+  <header class="site-content-editor__head">
+    <div>
+      <h1 class="site-content-editor__title text-font-important-light dark:text-font-important-dark">
+        {{ title }}
+      </h1>
+      {% if description %}
+        <p class="site-content-editor__desc text-font-subtle-light dark:text-font-subtle-dark">
+          {{ description }}
+        </p>
+      {% endif %}
+    </div>
+    {% if preview_url %}
+      <a class="site-content-editor__preview"
+         href="{{ preview_url }}"
+         target="_blank"
+         rel="noopener noreferrer">
+        Переглянути на сайті →
+      </a>
+    {% endif %}
+  </header>
+
+  <form method="post" class="site-content-editor__form">
+    {% csrf_token %}
+
+    {% if section.visibility_key %}
+      <fieldset class="site-content-editor__fieldset">
+        <legend class="site-content-editor__legend text-font-important-light dark:text-font-important-dark">
+          Видимість на сайті
+        </legend>
+        <div class="site-content-editor__field site-content-editor__field--checkbox">
+          <label class="site-content-editor__label text-font-subtle-light dark:text-font-subtle-dark"
+                 for="{{ form.section_visible.id_for_label }}">
+            {{ form.section_visible.label }}
+          </label>
+          {{ form.section_visible.as_widget }}
+          {% if form.section_visible.errors %}
+            <ul class="site-content-editor__errors">
+              {% for error in form.section_visible.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </fieldset>
+    {% endif %}
+
+    {% for group_title, fields in grouped_bound_fields %}
+      <fieldset class="site-content-editor__fieldset">
+        <legend class="site-content-editor__legend text-font-important-light dark:text-font-important-dark">
+          {{ group_title }}
+        </legend>
+        {% for field in fields %}
+          <div class="site-content-editor__field">
+            <label class="site-content-editor__label text-font-subtle-light dark:text-font-subtle-dark"
+                   for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+            {% if field.help_text %}
+              <p class="site-content-editor__hint text-font-subtle-light dark:text-font-subtle-dark">
+                {{ field.help_text }}
+              </p>
+            {% endif %}
+            {{ field.as_widget }}
+            {% if field.errors %}
+              <ul class="site-content-editor__errors">
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </fieldset>
+    {% endfor %}
+
+    <div class="site-content-editor__actions">
+      {% include "unfold/components/button.html" with variant="primary" submit=True children="Зберегти зміни" %}
+    </div>
+  </form>
+</div>
+{% endblock %}

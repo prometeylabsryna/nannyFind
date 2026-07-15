@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Контакти — Поміч поруч</title>
+  <meta name="description" content="Зв'яжіться з командою Поміч поруч">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" sizes="180x180">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/globals.css">
+  
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/contacts.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/documents.css">
+  <link rel="stylesheet" href="/css/page-decor.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+</head>
+<body>
+  <div id="site-header" hx-get="/partials/header.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <main><div class="page-backdrop"><div class="page-decor" aria-hidden="true">
+  <div class="page-decor-dots"></div>
+  <span class="page-decor-blob page-decor-blob--1"></span>
+  <span class="page-decor-blob page-decor-blob--2"></span>
+  <span class="page-decor-blob page-decor-blob--3"></span>
+  <span class="page-decor-blob page-decor-blob--4"></span>
+  <span class="page-decor-ring page-decor-ring--1"></span>
+  <span class="page-decor-ring page-decor-ring--2"></span>
+  <span class="page-decor-wave"></span>
+  <span class="page-decor-icon page-decor-icon--shield">🛡</span>
+  <span class="page-decor-icon page-decor-icon--heart">💚</span>
+  <span class="page-decor-icon page-decor-icon--star">✦</span>
+  <span class="page-decor-icon page-decor-icon--baby">👶</span>
+  <span class="page-decor-icon page-decor-icon--home">🏠</span>
+</div><div class="page-backdrop-content">
+<section class="page-hero page-hero-compact"><div class="page-hero-bg"></div><div class="container page-hero-inner">
+  <nav class="breadcrumbs" aria-label="Навігація"><a href="/">Головна</a> / <span>Контакти</span></nav>
+  <h1 class="page-hero-title">Контакти</h1>
+  <p class="page-hero-subtitle">Маєте питання щодо пошуку няні, реєстрації чи співпраці? Напишіть — відповімо протягом робочого дня.</p>
+</div></section>
+<section class="contacts-section"><div class="container contacts-layout">
+  <aside class="contacts-aside">
+    <div class="card contacts-card">
+      <h2>Зв'язок</h2>
+      <p class="contacts-lead">Команда підтримки працює з понеділка по п'ятницю та допоможе з будь-яким запитом.</p>
+      <ul class="contacts-list">
+        <li class="contact-item"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg></span>
+          <div class="contact-body"><span class="contact-label">Email</span><a class="contact-value" href="mailto:info@pomich-poruch.com.ua" data-settings="support_email" data-settings-href="mailto:">info@pomich-poruch.com.ua</a></div></li>
+        <li class="contact-item"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+          <div class="contact-body"><span class="contact-label">Телефон</span><a class="contact-value" href="tel:+380441234567" data-settings="support_phone" data-settings-href="tel:">+380 44 123 45 67</a></div></li>
+        <li class="contact-item"><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          <div class="contact-body"><span class="contact-label">Графік</span><span class="contact-value" data-settings="work_hours">Пн–Пт, 9:00–18:00</span></div></li>
+        <li class="contact-item" id="contact-address-item" hidden><span class="contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <div class="contact-body"><span class="contact-label">Адреса</span><span class="contact-value" data-settings="support_address"></span></div></li>
+      </ul>
+    </div>
+    <div class="contacts-map" aria-hidden="true"><span class="contacts-map-badge">Працюємо по всій Україні</span><p class="contacts-map-cities">Київ · Львів · Дніпро · Одеса · Харків</p></div>
+    <div class="contacts-quick"><a href="/faq/" class="contacts-quick-link">Часті запитання</a><a href="/nanny/" class="contacts-quick-link">Каталог нянь</a></div>
+  </aside>
+  <div class="contacts-form-wrap">
+    <form class="card contacts-form-card" hx-post="/partials/success.html" hx-target="#contact-result" hx-swap="innerHTML">
+      <h2>Написати нам</h2>
+      <p class="contacts-form-intro">Опишіть ваше питання — ми надішлемо відповідь на вказаний email.</p>
+      <div id="contact-result"></div>
+      <div class="contacts-form-grid">
+        <div class="field-group"><label class="label" for="contact-name">Ім'я</label><input class="field" id="contact-name" name="name" type="text" placeholder="Ваше ім'я" autocomplete="name" required></div>
+        <div class="field-group"><label class="label" for="contact-email">Email</label><input class="field" id="contact-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email" required></div>
+        <div class="field-group field-group--full"><label class="label" for="contact-msg">Повідомлення</label><textarea class="field" id="contact-msg" name="msg" rows="5" placeholder="Чим можемо допомогти?" required></textarea></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Надіслати повідомлення</button>
+      <p class="contacts-form-note">Надсилаючи форму, ви погоджуєтесь з <a href="/privacy-policy">політикою конфіденційності</a>.</p>
+    </form>
+  </div>
+</div></section>
+</div></div></main>
+  <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <script src="/js/routes.js"></script>
+  <script src="/js/mock-data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/roles.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/validation.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cabinet-core.js"></script>
+  <script src="/js/cabinet-parent.js"></script>
+  <script src="/js/cabinet-nanny.js"></script>
+  <script src="/js/cabinet-admin.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/content-loader.js"></script>
+  <script src="/js/site-content.js"></script>
+  <script src="/js/app.js"></script>
+  
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+      PP.afterPartialSwap?.(e.detail.target);
+      if (e.detail.target.id === 'site-header') PP.initLayout();
+    });
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (PP.loadSiteContent) await PP.loadSiteContent();
+      PP.initLayout();
+      PP.initCookie();
+      if (PP.SITE_SETTINGS && PP.SITE_SETTINGS.support_address) {
+        document.getElementById('contact-address-item').hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

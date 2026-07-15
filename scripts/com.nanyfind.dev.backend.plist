@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.nanyfind.dev.backend</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Frameworks/Python.framework/Versions/3.13/bin/python3</string>
+    <string>manage.py</string>
+    <string>runserver</string>
+    <string>8001</string>
+    <string>--noreload</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__ROOT__/backend</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>DJANGO_SETTINGS_MODULE</key>
+    <string>config.settings.develop</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/tmp/nanyfind-backend.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/nanyfind-backend.log</string>
+</dict>
+</plist>

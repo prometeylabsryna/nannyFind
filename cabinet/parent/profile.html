@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Профіль Батьків</title>
+  <meta name="description" content="">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" sizes="180x180">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/globals.css">
+  
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/nanny.css">
+  <link rel="stylesheet" href="/css/calendar.css">
+  <link rel="stylesheet" href="/css/datepicker.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/documents.css">
+  <link rel="stylesheet" href="/css/page-decor.css">
+  <link rel="stylesheet" href="/css/cabinet.css">
+  <link rel="stylesheet" href="/css/payments.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+</head>
+<body>
+  <div id="site-header" hx-get="/partials/header.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <main>
+<div class="container cabinet-layout">
+  <div class="cabinet-mobile-nav" id="parent-mobile-nav"></div>
+  <aside class="cabinet-sidebar"><nav class="card" id="parent-nav"></nav></aside>
+  <div class="cabinet-main parent-profile-page">
+    <div class="cabinet-page-head">
+      <h1 class="cabinet-title">Профіль</h1>
+      <p class="cabinet-subtitle">Заповніть дані та додайте фото — няні побачать профіль після відкриття контакту</p>
+    </div>
+    <div class="profile-page-grid">
+      <form class="card profile-form" id="parent-profile-form">
+        <div class="profile-photo-section">
+          <div class="profile-avatar-wrap" id="profile-avatar-wrap">
+            <img class="profile-avatar-img" id="profile-photo-preview" alt="" width="112" height="112" hidden>
+            <span class="profile-avatar-fallback" id="profile-photo-fallback" aria-hidden="true">👤</span>
+          </div>
+          <div class="profile-photo-actions">
+            <span class="label">Фото профілю</span>
+            <p class="profile-photo-hint">JPEG, PNG або WebP, до 5 МБ. Квадратне фото виглядає найкраще.</p>
+            <input type="file" class="profile-photo-input" id="profile-photo-input" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="profile-photo-btns">
+              <button type="button" class="btn btn-secondary profile-photo-btn" id="profile-photo-btn">Додати фото</button>
+              <button type="button" class="btn btn-primary profile-photo-save" id="profile-photo-save" disabled>Зберегти</button>
+              <button type="button" class="btn btn-ghost profile-photo-delete" id="profile-photo-delete" hidden>Видалити</button>
+            </div>
+            <p class="profile-photo-status" id="profile-photo-status" hidden aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div><label class="label" for="pf-first-name">Ім'я</label><input class="field" id="pf-first-name" name="first_name" autocomplete="given-name"></div>
+          <div><label class="label" for="pf-last-name">Прізвище</label><input class="field" id="pf-last-name" name="last_name" autocomplete="family-name"></div>
+        </div>
+        <div class="form-row form-row-2">
+          <div><label class="label" for="pf-birth-date">Дата народження</label><input class="field" id="pf-birth-date" name="birth_date" type="date"></div>
+          <div><label class="label" for="pf-phone">Телефон</label><input class="field" id="pf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+380XXXXXXXXX" maxlength="13" required></div>
+        </div>
+        <div class="form-row">
+          <label class="label" for="pf-city">Місто</label>
+          <input class="field" id="pf-city" name="city" readonly>
+        </div>
+        <fieldset class="profile-fieldset">
+          <legend>Про дітей</legend>
+          <div class="form-row form-row-2">
+            <div><label class="label" for="pf-children-count">Кількість дітей</label><input type="number" class="field" id="pf-children-count" name="children_count" min="0" inputmode="numeric"></div>
+            <div><label class="label" for="pf-children-ages">Вік дітей</label><input class="field" id="pf-children-ages" name="children_ages" placeholder="3, 6"></div>
+          </div>
+          <div class="form-row">
+            <label class="label" for="pf-special-needs">Особливі потреби</label>
+            <textarea class="field" id="pf-special-needs" rows="4" name="special_needs" placeholder="Алергії, особливості розвитку, побажання до догляду"></textarea>
+          </div>
+        </fieldset>
+        <div class="profile-form-actions">
+          <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+        </div>
+      </form>
+      <aside class="card profile-preview-card" aria-label="Превʼю профілю">
+        <h2 class="profile-preview-title">Як бачать няні</h2>
+        <div id="profile-card-preview" class="profile-preview-inner"></div>
+        <ul class="profile-tips-list">
+          <li>Якісне фото допомагає няням краще вас розпізнати</li>
+          <li>Детальна інформація про дітей полегшує підбір</li>
+          <li>Контактні дані доступні після відкриття чату</li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</div>
+</main>
+  <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <script src="/js/routes.js"></script>
+  <script src="/js/mock-data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/roles.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/datepicker.js"></script>
+  <script src="/js/validation.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/cabinet-core.js"></script>
+  <script src="/js/cabinet-parent.js"></script>
+  <script src="/js/cabinet-nanny.js"></script>
+  <script src="/js/cabinet-admin.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/content-loader.js"></script>
+  <script src="/js/site-content.js"></script>
+  <script src="/js/app.js"></script>
+  
+  <script>
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+      PP.afterPartialSwap?.(e.detail.target);
+      if (e.detail.target.id === 'site-header') PP.initLayout();
+    });
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (PP.loadSiteContent) await PP.loadSiteContent();
+      PP.initLayout();
+      PP.initCookie();
+      PP.initCabinetPage();
+    });
+  </script>
+</body>
+</html>

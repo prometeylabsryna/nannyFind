@@ -1,0 +1,85 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$VAR (не $VAR) — має підставлятись усередині контейнера з POSTGRES_USER/POSTGRES_DB
+      # (env_file), а не на етапі парсингу compose на хості.
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    # Redis тут лише як Channels layer для WS-чату (pub/sub + group membership) —
+    # ефемерні дані, історія переписки лежить у Postgres. Тому:
+    #  - maxmemory 64mb + allkeys-lru: коли нагромадиться "зайве" — сам вичищає старе,
+    #    а не росте необмежено;
+    #  - --save "" --appendonly no: вимкнено RDB/AOF persistence (не потрібна ефемерним
+    #    даним, це ж економить RAM на буфери збереження та I/O на диск).
+    command: >-
+      redis-server
+      --maxmemory 64mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    deploy:
+      resources:
+        limits:
+          # Жорсткий cgroup-ліміт контейнера — навіть якщо якийсь клієнт бібліотеки
+          # проігнорує maxmemory, ОС не дасть Redis вийти за цю межу.
+          memory: 96M
+
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz/', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./deploy/nginx/Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/prod:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - static_data:/app/staticfiles:ro
+      - media_data:/app/media:ro
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:

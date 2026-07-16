@@ -7,13 +7,10 @@ from apps.core.models import SiteBlock, SiteSettings
 SITE_BLOCKS_CACHE_TTL = 60
 
 
-def _load_blocks_dict() -> dict[str, str]:
-    result = {}
-    for block in SiteBlock.objects.filter(is_active=True):
-        result[block.cache_key] = block.text_html
-    for page, key in []:
-        pass
-    return result
+def _block_value(block: SiteBlock) -> str:
+    if block.content_type == SiteBlock.ContentType.IMAGE:
+        return block.image.url if block.image else ""
+    return block.text_html
 
 
 def get_all_site_content() -> dict:
@@ -23,7 +20,7 @@ def get_all_site_content() -> dict:
 
     blocks = {}
     for block in SiteBlock.objects.filter(is_active=True):
-        blocks[block.cache_key] = block.text_html
+        blocks[block.cache_key] = _block_value(block)
 
     settings = SiteSettings.get_solo()
     payload = {

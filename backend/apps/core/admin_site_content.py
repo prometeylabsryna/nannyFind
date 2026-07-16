@@ -2,14 +2,16 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.cache import cache
+from django.core.files.uploadedfile import UploadedFile
 from django.shortcuts import redirect, render
 from unfold.admin import ModelAdmin
-from unfold.widgets import UnfoldBooleanWidget
+from unfold.widgets import UnfoldAdminImageFieldWidget, UnfoldBooleanWidget
 
 from apps.core.admin_utils import SingletonModelAdminMixin
 from apps.core.block_defaults import (
     ACCENT_MARKER_KEYS,
     BLOCK_FIELD_LABELS,
+    IMAGE_KEYS,
     INLINE_KEYS,
     MULTILINE_KEYS,
     default_for_key,
@@ -83,7 +85,16 @@ class SitePageContentForm(forms.Form):
                 continue
             label = BLOCK_FIELD_LABELS.get((page, key), key.replace("_", " ").capitalize())
             help_text = field_help_for(page, key)
-            if is_visibility_key(key):
+            if key in IMAGE_KEYS:
+                existing = blocks.get((page, key))
+                field = forms.ImageField(
+                    required=False,
+                    label=label,
+                    help_text=help_text,
+                    widget=UnfoldAdminImageFieldWidget(),
+                    initial=existing.image if existing and existing.image else None,
+                )
+            elif is_visibility_key(key):
                 field = forms.BooleanField(required=False, label=label, help_text=help_text, widget=UnfoldBooleanWidget())
                 field.initial = blocks.get((page, key), None) and blocks[(page, key)].text_html not in {
                     "0",
@@ -107,13 +118,14 @@ def load_section_blocks(section: ContentSection) -> dict[tuple[str, str], SiteBl
     result = {}
     for page, key in section.blocks:
         label = BLOCK_FIELD_LABELS.get((page, key), key)
+        if key in IMAGE_KEYS:
+            defaults = {"label": label, "content_type": SiteBlock.ContentType.IMAGE}
+        else:
+            defaults = {"label": label, "text_html": default_for_key(page, key)}
         block, _ = SiteBlock.objects.get_or_create(
             page=page,
             key=key,
-            defaults={
-                "label": label,
-                "text_html": default_for_key(page, key),
-            },
+            defaults=defaults,
         )
         result[(page, key)] = block
     return result
@@ -145,7 +157,7 @@ def site_content_section_view(request, section_slug: str, model_admin=None):
     blocks = load_section_blocks(section)
 
     if request.method == "POST":
-        form = SitePageContentForm(section, blocks, request.POST)
+        form = SitePageContentForm(section, blocks, request.POST, request.FILES)
         if form.is_valid():
             if section.visibility_key:
                 vis = blocks[(section.page_slug, section.visibility_key)]
@@ -160,11 +172,21 @@ def site_content_section_view(request, section_slug: str, model_admin=None):
                     continue
                 value = form.cleaned_data[fname]
                 block = blocks[(page, key)]
-                if is_visibility_key(key):
+                if key in IMAGE_KEYS:
+                    if value is False:
+                        if block.image:
+                            block.image.delete(save=False)
+                        block.image = None
+                        block.save(update_fields=["image"])
+                    elif isinstance(value, UploadedFile):
+                        block.image = value
+                        block.save(update_fields=["image"])
+                elif is_visibility_key(key):
                     block.text_html = "1" if value else "0"
+                    block.save(update_fields=["text_html"])
                 else:
                     block.text_html = _field_value_for_save(key, value)
-                block.save(update_fields=["text_html"])
+                    block.save(update_fields=["text_html"])
 
             cache.delete(SITE_BLOCKS_CACHE_KEY)
             messages.success(request, f"Збережено: {section.title}")

@@ -68,6 +68,7 @@ INLINE_KEYS = frozenset(
     }
 )
 ACCENT_MARKER_KEYS = frozenset({"hero_title_html"})
+IMAGE_KEYS = frozenset({"hero_image"})
 MULTILINE_KEYS = frozenset(
     {
         "hero_subtitle",
@@ -92,6 +93,10 @@ def is_visibility_key(key: str) -> bool:
     return key.endswith(VISIBILITY_SUFFIX)
 
 
+def is_image_key(key: str) -> bool:
+    return key in IMAGE_KEYS
+
+
 def default_for_key(page: str, key: str) -> str:
     return BLOCK_DEFAULTS.get((page, key), "1" if is_visibility_key(key) else "")
 
@@ -104,6 +109,7 @@ BLOCK_FIELD_LABELS: dict[tuple[str, str], str] = {
     ("home", "search_date_label"): "Поле «Дата»",
     ("home", "search_format_label"): "Поле «Формат»",
     ("home", "search_submit"): "Кнопка пошуку",
+    ("home", "hero_image"): "Фото у Hero-блоці",
     ("home", "hero_image_alt"): "Опис фото",
     ("home", "hero_trust_icon"): "Іконка бейджа",
     ("home", "hero_trust_count"): "Кількість нянь",

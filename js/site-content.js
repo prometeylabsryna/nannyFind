@@ -116,6 +116,13 @@ PP.applySiteBlocks = (root = document) => {
     const val = PP.block(key);
     if (val) el.setAttribute(attr, val);
   });
+
+  root.querySelectorAll("[data-cms-src]").forEach((el) => {
+    const key = el.dataset.cmsSrc;
+    const val = PP.block(key);
+    if (!val) return;
+    el.setAttribute("src", PP.resolveMediaUrl ? PP.resolveMediaUrl(val) : val);
+  });
 };
 
 PP.renderHomeBenefits = () => {

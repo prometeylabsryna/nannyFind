@@ -41,7 +41,7 @@
     {% endif %}
   </header>
 
-  <form method="post" class="site-content-editor__form">
+  <form method="post" enctype="multipart/form-data" class="site-content-editor__form">
     {% csrf_token %}
 
     {% if section.visibility_key %}

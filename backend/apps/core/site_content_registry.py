@@ -49,6 +49,7 @@ CONTENT_SECTIONS: tuple[ContentSection, ...] = (
             "search_date_label",
             "search_format_label",
             "search_submit",
+            "hero_image",
             "hero_image_alt",
             "hero_trust_icon",
             "hero_trust_count",
@@ -58,7 +59,7 @@ CONTENT_SECTIONS: tuple[ContentSection, ...] = (
         field_groups=(
             FieldGroup("Заголовок і текст", ("hero_title_html", "hero_subtitle")),
             FieldGroup("Форма пошуку", ("search_city_label", "search_date_label", "search_format_label", "search_submit")),
-            FieldGroup("Фото та довіра", ("hero_image_alt", "hero_trust_icon", "hero_trust_count", "hero_trust_cities")),
+            FieldGroup("Фото та довіра", ("hero_image", "hero_image_alt", "hero_trust_icon", "hero_trust_count", "hero_trust_cities")),
         ),
     ),
     ContentSection(

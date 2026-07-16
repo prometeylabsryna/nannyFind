@@ -151,7 +151,7 @@ page("index.html", "Поміч поруч — Пошук нянь", "Марке�
     </form>
   </div>
   <div class="hero-visual">
-    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=750&fit=crop" alt="Няня з дитиною" width="600" height="750" data-cms="home.hero_image_alt" data-cms-attr="alt">
+    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=750&fit=crop" alt="Няня з дитиною" width="600" height="750" data-cms="home.hero_image_alt" data-cms-attr="alt" data-cms-src="home.hero_image">
     <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">500+ перевірених нянь</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">У 5 містах України</span></div></div>
   </div>
 </div></section>

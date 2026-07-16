@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin, messages
 from django.core.cache import cache
 from django.shortcuts import redirect, render
@@ -25,6 +26,18 @@ SITE_BLOCKS_CACHE_KEY = "pomich_site_blocks_v1"
 
 def block_field_name(page: str, key: str) -> str:
     return f"block__{page}__{key}__text"
+
+
+def _absolute_preview_url(preview_url: str) -> str:
+    """`preview_url` у реєстрі — відносний шлях фронтенду (напр. "/", "/nanny/").
+
+    Адмінка живе на окремому домені (api.*), тож без FRONTEND_URL браузер
+    резолвив би шлях відносно поточного (api-)домену, де такого маршруту
+    немає — звідси 404 на кнопці «Переглянути на сайті».
+    """
+    if not preview_url or preview_url.startswith(("http://", "https://")):
+        return preview_url
+    return f"{settings.FRONTEND_URL.rstrip('/')}{preview_url}"
 
 
 def _widget_for_key(key: str):
@@ -168,7 +181,7 @@ def site_content_section_view(request, section_slug: str, model_admin=None):
         "title": section.title,
         "description": section.description,
         "opts": model_admin.model._meta if model_admin else SiteSettings._meta,
-        "preview_url": section.preview_url,
+        "preview_url": _absolute_preview_url(section.preview_url),
     }
     return render(request, "admin/core/site_content_page.html", context)
 

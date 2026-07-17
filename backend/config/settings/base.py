@@ -161,7 +161,15 @@ if _redis_url:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {"hosts": [_redis_url]},
+            "CONFIG": {
+                # redis-py >=8.0 дефолтить socket_timeout=5s, а channels_redis
+                # чекає на блокуючий BRPOP/BZPOPMIN із тим самим 5s server-side
+                # timeout — клієнт зрідка встигає кинути TimeoutError раніше,
+                # ніж сервер штатно повертає "нема повідомлень" (WS рветься
+                # без причини). socket_timeout=None вимикає client-side read
+                # timeout саме для цього з'єднання. Див. django/channels_redis#422.
+                "hosts": [{"address": _redis_url, "socket_timeout": None}],
+            },
         }
     }
 else:

@@ -274,19 +274,22 @@ PP.initChatPage = async (role) => {
     previewEl.querySelector(".chat-file-clear")?.addEventListener("click", clearPreview);
   });
 
-  const showList = () => {
-    if (PP._isMobileChat()) PP._setChatMobileMode(layoutEl, "list");
-  };
-  const showThread = () => {
-    if (PP._isMobileChat()) PP._setChatMobileMode(layoutEl, "thread");
-  };
-
   const refreshList = async (activeId) => {
     const convs = await PP.fetchConversations();
     const list = convs.results || convs;
     PP._detectNewChatMessages(list, activeId, role, (id) => openConversation(id));
     PP._renderChatList(listEl, list, role, activeId);
     return list;
+  };
+
+  const showList = () => {
+    PP._chatState.activeId = null;
+    PP._disconnectChatRealtime();
+    if (PP._isMobileChat()) PP._setChatMobileMode(layoutEl, "list");
+    refreshList(null).catch(() => {});
+  };
+  const showThread = () => {
+    if (PP._isMobileChat()) PP._setChatMobileMode(layoutEl, "thread");
   };
 
   if (PP._chatState.listPollTimer) clearInterval(PP._chatState.listPollTimer);

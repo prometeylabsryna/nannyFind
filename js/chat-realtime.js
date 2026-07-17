@@ -8,6 +8,9 @@ PP._chatState = PP._chatState || {
   lastSeenMsgId: new Map(),
   reconnectTimer: null,
   reconnectAttempt: 0,
+  inboxSocket: null,
+  inboxReconnectTimer: null,
+  inboxReconnectAttempt: 0,
   activeId: null,
   knownIds: new Set(),
   viewerId: null,
@@ -182,4 +185,88 @@ PP._connectChatRealtime = (convId, msgsEl, onRemoteActivity, isReconnect = false
   ws.onerror = () => {
     if (!opened) ws.close();
   };
+};
+
+/* User-level inbox channel: fires for new messages in ANY conversation,
+   independently of which (if any) thread is currently open. */
+PP._disconnectInboxSocket = () => {
+  if (PP._chatState.inboxReconnectTimer) {
+    clearTimeout(PP._chatState.inboxReconnectTimer);
+    PP._chatState.inboxReconnectTimer = null;
+  }
+  const ws = PP._chatState.inboxSocket;
+  PP._chatState.inboxSocket = null;
+  if (ws) {
+    ws.onclose = null;
+    ws.onerror = null;
+    ws.onmessage = null;
+    try {
+      ws.close();
+    } catch {
+      /* ignore */
+    }
+  }
+  PP._chatState.inboxReconnectAttempt = 0;
+};
+
+PP._connectInboxSocket = (onMessage) => {
+  const token = PP._token?.();
+  if (!token) return;
+  PP._disconnectInboxSocket();
+
+  const scheduleReconnect = () => {
+    if (PP._chatState.inboxReconnectTimer) return;
+    const attempt = PP._chatState.inboxReconnectAttempt || 0;
+    const delay = Math.min(30000, 1000 * 2 ** attempt);
+    PP._chatState.inboxReconnectAttempt = attempt + 1;
+    PP._chatState.inboxReconnectTimer = setTimeout(() => {
+      PP._chatState.inboxReconnectTimer = null;
+      connect();
+    }, delay);
+  };
+
+  const connect = () => {
+    const tok = PP._token?.();
+    if (!tok) return;
+    let ws;
+    try {
+      ws = new WebSocket(`${PP.resolveWsBase()}/ws/inbox/`);
+    } catch {
+      scheduleReconnect();
+      return;
+    }
+    PP._chatState.inboxSocket = ws;
+    let opened = false;
+
+    ws.onopen = () => {
+      opened = true;
+      PP._chatState.inboxReconnectAttempt = 0;
+      try {
+        ws.send(JSON.stringify({ type: "auth", token: tok }));
+      } catch {
+        ws.close();
+      }
+    };
+
+    ws.onmessage = (ev) => {
+      let payload;
+      try {
+        payload = JSON.parse(ev.data);
+      } catch {
+        return;
+      }
+      if (payload.type === "new_message" && payload.data) onMessage(payload.data);
+    };
+
+    ws.onclose = () => {
+      if (PP._chatState.inboxSocket === ws) PP._chatState.inboxSocket = null;
+      scheduleReconnect();
+    };
+
+    ws.onerror = () => {
+      if (!opened) ws.close();
+    };
+  };
+
+  connect();
 };

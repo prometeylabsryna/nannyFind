@@ -342,6 +342,18 @@ PP.initChatPage = async (role) => {
     await selectConversation(id, fresh);
   };
 
+  PP._connectInboxSocket((data) => {
+    const convId = Number(data.conversation_id);
+    if (!PP._chatState.lastSeenMsgId) PP._chatState.lastSeenMsgId = new Map();
+    PP._chatState.lastSeenMsgId.set(convId, data.message_id);
+    refreshList(PP._chatState.activeId).catch(() => {});
+    if (convId === Number(PP._chatState.activeId)) return;
+    if (document.visibilityState !== "visible") return;
+    const name = (role === "nanny" ? data.parent_name : data.nanny_name) || "Співрозмовник";
+    const text = data.text || (data.attachment ? "📎 Файл" : "");
+    PP._showChatPopup(name, text, () => openConversation(convId));
+  });
+
   const matchNannyConv = (list, nannyId) =>
     list.find((c) => Number(c.nanny) === nannyId || Number(c.nanny?.id) === nannyId);
 

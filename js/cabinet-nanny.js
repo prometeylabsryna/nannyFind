@@ -175,7 +175,7 @@ PP.initNannyDocuments = async () => {
         const doc = uploaded[type];
         const required = PP.REQUIRED_NANNY_DOCS.includes(type) ? ' <span class="doc-required">*</span>' : "";
         return `<div class="doc-row">
-          <span>${label}${required}</span>
+          <span class="doc-row-label">${label}${required}</span>
           ${doc ? PP.docStatusBadge(doc.status) : '<span class="badge badge-trust">Не завантажено</span>'}
         </div>`;
       })

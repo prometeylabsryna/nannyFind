@@ -22,7 +22,7 @@ def conversations_for_user(user):
 
 
 def get_user_conversation(user, conversation_id):
-    qs = Conversation.objects.filter(pk=conversation_id)
+    qs = Conversation.objects.select_related("parent", "nanny", "admin_user").filter(pk=conversation_id)
     if user.role == User.Role.PARENT:
         return qs.filter(parent=user.parent_profile).first()
     if user.role == User.Role.NANNY:

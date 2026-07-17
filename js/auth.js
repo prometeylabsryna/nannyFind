@@ -208,14 +208,15 @@ PP.completeOAuthLogin = async (provider, payload) => {
   const isReauth = params.get("reauth") === "1";
 
   if (isReauth && PP.needsParentAccount(next) && data.user?.role !== "parent") {
-    alert(
-      "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email."
+    PP.showToast(
+      "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email.",
+      "error"
     );
     return;
   }
 
   if (isReauth && PP.needsAdminAccount(next) && !PP.isPlatformAdmin(data.user)) {
-    alert("Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.");
+    PP.showToast("Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.", "error");
     PP.clearSession();
     return;
   }
@@ -262,7 +263,7 @@ PP.initOAuthButtons = async () => {
     const provider = btn.dataset.provider;
     if (btn.disabled || provider === "google" || provider === "facebook" || provider === "apple") return;
     btn.addEventListener("click", () => {
-      alert("OAuth провайдер не підключено.");
+      PP.showToast("OAuth провайдер не підключено.", "error");
     });
   });
 };
@@ -296,7 +297,7 @@ PP.initGoogleOAuth = (clientId) => {
           try {
             await PP.completeOAuthLogin("google", { id_token: response.credential });
           } catch (err) {
-            alert(err.message || "Помилка OAuth");
+            PP.showToast(err.message || "Помилка OAuth", "error");
             btn.disabled = false;
           }
         },
@@ -311,7 +312,7 @@ PP.initGoogleOAuth = (clientId) => {
                 try {
                   await PP.completeOAuthLogin("google", { access_token: tokenResponse.access_token });
                 } catch (err) {
-                  alert(err.message || "Помилка OAuth");
+                  PP.showToast(err.message || "Помилка OAuth", "error");
                   btn.disabled = false;
                 }
               },
@@ -320,7 +321,7 @@ PP.initGoogleOAuth = (clientId) => {
         }
       });
     } catch {
-      alert("Не вдалося завантажити Google OAuth.");
+      PP.showToast("Не вдалося завантажити Google OAuth.", "error");
       btn.disabled = false;
     }
   });
@@ -361,14 +362,14 @@ PP.initFacebookOAuth = (appId, btns) => {
           try {
             await PP.completeOAuthLogin("facebook", { access_token: response.authResponse.accessToken });
           } catch (err) {
-            alert(err.message || "Помилка OAuth");
+            PP.showToast(err.message || "Помилка OAuth", "error");
             btn.disabled = false;
           }
         },
         { scope: "email,public_profile" }
       );
     } catch {
-      alert("Не вдалося завантажити Facebook SDK.");
+      PP.showToast("Не вдалося завантажити Facebook SDK.", "error");
       btn.disabled = false;
     }
   });
@@ -410,7 +411,7 @@ PP.initAppleOAuth = (clientId, btns) => {
       await PP.completeOAuthLogin("apple", { id_token: idToken });
     } catch (err) {
       if (err?.error !== "popup_closed_by_user") {
-        alert(err.message || "Помилка Apple Sign In");
+        PP.showToast(err.message || "Помилка Apple Sign In", "error");
       }
       btn.disabled = false;
     }
@@ -434,7 +435,7 @@ PP.initRegisterForm = () => {
         for (const type of PP.REQUIRED_NANNY_DOCS) {
           const input = document.querySelector(`[data-doc-type="${type}"]`);
           if (!input?.files?.[0]) {
-            alert(`Завантажте ${PP.DOC_TYPES[type]} для реєстрації помічника.`);
+            PP.showToast(`Завантажте ${PP.DOC_TYPES[type]} для реєстрації помічника.`, "error");
             btn.disabled = false;
             return;
           }
@@ -455,7 +456,7 @@ PP.initRegisterForm = () => {
       }
       PP.authRedirectAfterLogin(data.user.role);
     } catch (err) {
-      alert(err.message || "Помилка реєстрації");
+      PP.showToast(err.message || "Помилка реєстрації", "error");
     } finally {
       btn.disabled = false;
     }
@@ -495,22 +496,23 @@ PP.initLoginForm = () => {
       const next = params.get("next") || "";
       const isReauth = params.get("reauth") === "1";
       if (isReauth && PP.needsParentAccount(next) && data.user?.role !== "parent") {
-        alert(
-          "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email."
+        PP.showToast(
+          "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email.",
+          "error"
         );
         PP.clearSession();
         return;
       }
 
       if (isReauth && PP.needsAdminAccount(next) && !PP.isPlatformAdmin(data.user)) {
-        alert("Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.");
+        PP.showToast("Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.", "error");
         PP.clearSession();
         return;
       }
 
       PP.authRedirectAfterLogin(data.user.role);
     } catch (err) {
-      alert(err.message || "Помилка входу");
+      PP.showToast(err.message || "Помилка входу. Перевірте email і пароль.", "error");
     } finally {
       btn.disabled = false;
     }
@@ -528,10 +530,9 @@ PP.initForgotPassword = () => {
     btn.disabled = true;
     try {
       await PP.authPasswordReset(email);
-      alert("Якщо email існує, лист надіслано.");
-      location.href = PP.ROUTES.login;
+      PP.showToastThenGo("Якщо email існує, лист надіслано.", "success", PP.ROUTES.login);
     } catch (err) {
-      alert(err.message);
+      PP.showToast(err.message || "Не вдалося надіслати лист.", "error");
     } finally {
       btn.disabled = false;
     }
@@ -561,17 +562,16 @@ PP.initResetPassword = () => {
     const password = form.querySelector('[type="password"]')?.value;
     const confirm = form.querySelector('[name="password_confirm"]')?.value;
     if (password !== confirm) {
-      alert("Паролі не збігаються.");
+      PP.showToast("Паролі не збігаються.", "error");
       return;
     }
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;
     try {
       await PP.authPasswordResetConfirm(uid, token, password);
-      alert("Пароль оновлено. Увійдіть з новим паролем.");
-      location.href = PP.ROUTES.login;
+      PP.showToastThenGo("Пароль оновлено. Увійдіть з новим паролем.", "success", PP.ROUTES.login);
     } catch (err) {
-      alert(err.message || "Не вдалося оновити пароль.");
+      PP.showToast(err.message || "Не вдалося оновити пароль.", "error");
     } finally {
       btn.disabled = false;
     }

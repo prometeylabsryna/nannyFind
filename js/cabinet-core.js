@@ -174,18 +174,34 @@ PP.docStatusBadge = (status) => {
   return map[status] || map.pending;
 };
 
+PP.TOAST_ICONS = { success: "✓", error: "!", info: "i" };
+
 PP.showToast = (msg, type = "info") => {
   let el = document.getElementById("pp-toast");
   if (!el) {
     el = document.createElement("div");
     el.id = "pp-toast";
     el.className = "pp-toast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    el.innerHTML = '<span class="pp-toast-icon" aria-hidden="true"></span><span class="pp-toast-text"></span>';
+    el.addEventListener("click", () => el.classList.remove("visible"));
     document.body.appendChild(el);
   }
-  el.textContent = msg;
+  el.querySelector(".pp-toast-icon").textContent = PP.TOAST_ICONS[type] || PP.TOAST_ICONS.info;
+  el.querySelector(".pp-toast-text").textContent = msg;
   el.dataset.type = type;
-  el.classList.add("visible");
-  setTimeout(() => el.classList.remove("visible"), 3500);
+  clearTimeout(PP._toastTimer);
+  el.classList.remove("visible");
+  requestAnimationFrame(() => el.classList.add("visible"));
+  PP._toastTimer = setTimeout(() => el.classList.remove("visible"), type === "error" ? 4500 : 3500);
+};
+
+PP.showToastThenGo = (msg, type, url, delay = 1200) => {
+  PP.showToast(msg, type);
+  setTimeout(() => {
+    location.href = url;
+  }, delay);
 };
 
 /**

@@ -284,9 +284,16 @@ PP.initChatPage = async (role) => {
   const refreshList = async (activeId) => {
     const convs = await PP.fetchConversations();
     const list = convs.results || convs;
+    PP._detectNewChatMessages(list, activeId, role, (id) => openConversation(id));
     PP._renderChatList(listEl, list, role, activeId);
     return list;
   };
+
+  if (PP._chatState.listPollTimer) clearInterval(PP._chatState.listPollTimer);
+  PP._chatState.listPollTimer = setInterval(() => {
+    if (document.visibilityState !== "visible") return;
+    refreshList(PP._chatState.activeId).catch(() => {});
+  }, 15000);
 
   const loadOlder = async () => {
     const id = PP._chatState.activeId;
@@ -330,12 +337,18 @@ PP.initChatPage = async (role) => {
     await refreshList(id);
   };
 
+  const openConversation = async (id) => {
+    const fresh = await refreshList(id);
+    await selectConversation(id, fresh);
+  };
+
   const matchNannyConv = (list, nannyId) =>
     list.find((c) => Number(c.nanny) === nannyId || Number(c.nanny?.id) === nannyId);
 
   try {
     let convs = await PP.fetchConversations();
     convs = convs.results || convs;
+    PP._detectNewChatMessages(convs, null, role, () => {});
     const nannyParam = new URLSearchParams(location.search).get("nanny");
     let activeId = null;
 
@@ -374,9 +387,7 @@ PP.initChatPage = async (role) => {
     listEl.addEventListener("click", async (e) => {
       const btn = e.target.closest(".chat-list-item");
       if (!btn) return;
-      const id = Number(btn.dataset.id);
-      const fresh = await refreshList(id);
-      await selectConversation(id, fresh);
+      await openConversation(Number(btn.dataset.id));
     });
   } catch (e) {
     console.warn(e);
@@ -433,12 +444,13 @@ PP.initChatPage = async (role) => {
   });
 
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && PP._chatState.activeId) {
-      const id = PP._chatState.activeId;
+    if (document.visibilityState !== "visible") return;
+    const id = PP._chatState.activeId;
+    if (id) {
       PP.fetchMessages(id).then((msgs) => {
         if (PP._chatState.activeId === id) PP._renderChatMessages(msgsEl, msgs);
       }).catch(() => {});
-      refreshList(id).catch(() => {});
     }
+    refreshList(id).catch(() => {});
   });
 };

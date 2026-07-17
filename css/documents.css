@@ -1,20 +1,44 @@
 .pp-toast {
   position: fixed;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
   left: 50%;
-  transform: translateX(-50%) translateY(120%);
   z-index: 200;
-  max-width: min(24rem, calc(100vw - 2rem));
-  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: max-content;
+  max-width: min(26rem, calc(100vw - 2rem));
+  padding: 0.875rem 1.125rem;
   background: var(--text);
   color: var(--white);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg, var(--radius));
   font-size: 0.875rem;
   line-height: 1.45;
-  text-align: center;
-  transition: transform 0.3s ease;
+  text-align: left;
+  cursor: pointer;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.2);
+  opacity: 0;
+  transform: translateX(-50%) translateY(0.5rem) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.pp-toast-icon {
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgb(255 255 255 / 0.2);
+}
+
+.pp-toast-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .pp-toast[data-type="success"] {
@@ -22,13 +46,43 @@
   color: #fff;
 }
 
+.pp-toast[data-type="success"] .pp-toast-icon {
+  background: rgb(255 255 255 / 0.28);
+}
+
 .pp-toast[data-type="error"] {
   background: #b91c1c;
   color: #fff;
 }
 
+.pp-toast[data-type="error"] .pp-toast-icon {
+  background: rgb(255 255 255 / 0.28);
+}
+
 .pp-toast.visible {
-  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+@media (max-width: 480px) {
+  .pp-toast {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: none;
+    transform: translateY(0.5rem) scale(0.97);
+  }
+
+  .pp-toast.visible {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-toast {
+    transition: opacity 0.2s ease;
+  }
 }
 
 .auth-card-wide {

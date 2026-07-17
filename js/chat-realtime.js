@@ -4,6 +4,8 @@ window.PP = window.PP || {};
 PP._chatState = PP._chatState || {
   socket: null,
   pollTimer: null,
+  listPollTimer: null,
+  lastSeenMsgId: new Map(),
   reconnectTimer: null,
   reconnectAttempt: 0,
   activeId: null,

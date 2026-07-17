@@ -75,8 +75,10 @@ PP._renderChatList = (listEl, convs, role, activeId) => {
       const time = PP._formatChatTime(c.last_message?.created_at || c.updated_at);
       const unreadCount =
         Number(c.id) === Number(activeId) ? 0 : Number(c.unread_count || 0);
-      const unread = unreadCount > 0 ? `<span class="chat-unread">${unreadCount}</span>` : "";
-      return `<button type="button" class="chat-list-item${Number(c.id) === Number(activeId) ? " active" : ""}" data-id="${c.id}">
+      const isUnread = unreadCount > 0;
+      const unread = isUnread ? `<span class="chat-unread">${unreadCount}</span>` : "";
+      const stateClasses = `${Number(c.id) === Number(activeId) ? " active" : ""}${isUnread ? " unread" : ""}`;
+      return `<button type="button" class="chat-list-item${stateClasses}" data-id="${c.id}">
         <span class="chat-list-avatar" aria-hidden="true">${PP._escapeHtml(initial)}</span>
         <span class="chat-list-body">
           <span class="chat-list-top">
@@ -91,6 +93,80 @@ PP._renderChatList = (listEl, convs, role, activeId) => {
       </button>`;
     })
     .join("");
+};
+
+PP._ensureChatPopupEl = () => {
+  let el = document.getElementById("chat-popup");
+  if (el) return el;
+  el = document.createElement("div");
+  el.id = "chat-popup";
+  el.className = "chat-popup";
+  el.setAttribute("role", "button");
+  el.setAttribute("tabindex", "0");
+  el.innerHTML = `
+    <span class="chat-popup-avatar" aria-hidden="true"></span>
+    <span class="chat-popup-body">
+      <span class="chat-popup-name"></span>
+      <span class="chat-popup-text"></span>
+    </span>
+    <button type="button" class="chat-popup-close" aria-label="Закрити">×</button>`;
+  document.body.appendChild(el);
+  return el;
+};
+
+PP._showChatPopup = (name, text, onOpen) => {
+  const el = PP._ensureChatPopupEl();
+  const displayName = (name || "").trim() || "Нове повідомлення";
+  el.querySelector(".chat-popup-avatar").textContent = displayName.charAt(0).toUpperCase();
+  el.querySelector(".chat-popup-name").textContent = displayName;
+  el.querySelector(".chat-popup-text").textContent = text || "";
+
+  const hide = () => {
+    el.classList.remove("visible");
+    clearTimeout(PP._chatPopupTimer);
+  };
+
+  el.onclick = () => {
+    hide();
+    onOpen?.();
+  };
+  el.onkeydown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      hide();
+      onOpen?.();
+    }
+  };
+  el.querySelector(".chat-popup-close").onclick = (e) => {
+    e.stopPropagation();
+    hide();
+  };
+
+  clearTimeout(PP._chatPopupTimer);
+  el.classList.remove("visible");
+  requestAnimationFrame(() => el.classList.add("visible"));
+  PP._chatPopupTimer = setTimeout(hide, 5000);
+};
+
+PP._detectNewChatMessages = (list, activeId, role, onOpen) => {
+  if (!PP._chatState.lastSeenMsgId) PP._chatState.lastSeenMsgId = new Map();
+  const seen = PP._chatState.lastSeenMsgId;
+  (list || []).forEach((c) => {
+    const id = Number(c.id);
+    const msg = c.last_message;
+    const curId = msg ? msg.id : null;
+    const known = seen.has(id);
+    const prevId = seen.get(id);
+    seen.set(id, curId);
+    if (!known) return;
+    if (curId == null || curId === prevId) return;
+    if (!msg || msg.is_own) return;
+    if (Number(activeId) === id) return;
+    if (document.visibilityState !== "visible") return;
+    const name = (role === "nanny" ? c.parent_name : c.nanny_name) || "Співрозмовник";
+    const text = msg.text || (msg.attachment ? "📎 Файл" : "");
+    PP._showChatPopup(name, text, () => onOpen?.(id));
+  });
 };
 
 PP._isMobileChat = () => window.matchMedia("(max-width: 767px)").matches;

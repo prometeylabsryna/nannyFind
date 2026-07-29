@@ -76,6 +76,7 @@ CONTENT_SECTIONS: tuple[ContentSection, ...] = (
         blocks=_blocks(
             "home",
             "benefits_section_visible",
+            "benefits_title",
             "benefit_1_icon",
             "benefit_1_title",
             "benefit_1_text",
@@ -89,9 +90,12 @@ CONTENT_SECTIONS: tuple[ContentSection, ...] = (
             "benefit_4_title",
             "benefit_4_text",
         ),
-        field_groups=tuple(
-            FieldGroup(f"Перевага {i}", (f"benefit_{i}_icon", f"benefit_{i}_title", f"benefit_{i}_text"))
-            for i in range(1, 5)
+        field_groups=(
+            FieldGroup("Заголовок секції", ("benefits_title",)),
+            *(
+                FieldGroup(f"Перевага {i}", (f"benefit_{i}_icon", f"benefit_{i}_title", f"benefit_{i}_text"))
+                for i in range(1, 5)
+            ),
         ),
     ),
     ContentSection(

@@ -348,7 +348,8 @@ PP.normalizeNanny = (n) => ({
   id: String(n.id),
   photo: PP.resolveMediaUrl(n.photo || n.photo_url || ""),
   certificates: Array.isArray(n.certificates) ? n.certificates : [],
-  reviewCount: n.reviewCount ?? n.review_count ?? 0,
+  reviewCount: Number(n.reviewCount ?? n.review_count ?? 0) || 0,
+  rating: Number(n.rating ?? n.rating_avg ?? 0) || 0,
   hourlyRate: n.hourlyRate ?? n.hourly_rate ?? 0,
   experienceYears: n.experienceYears ?? n.experience_years ?? 0,
   completedOrders: n.completedOrders ?? n.completed_orders ?? 0,
@@ -528,7 +529,10 @@ PP.fetchFAQ = () => PP.apiFetch("/content/faq/");
 PP.fetchBlog = () => PP.apiFetch("/content/blog/");
 PP.fetchBlogPost = (slug) => PP.apiFetch(`/content/blog/${slug}/`);
 PP.fetchReviewableNannies = () => PP.apiFetch("/parents/reviewable/");
-PP.fetchCities = () => PP.apiFetch("/geo/cities/");
+PP.fetchCities = (opts = {}) => {
+  const q = opts.withNannies ? "?with_nannies=1" : "";
+  return PP.apiFetch(`/geo/cities/${q}`);
+};
 
 PP.adminDashboard = () => PP.apiFetch("/admin/dashboard/");
 PP.adminUsers = (query = "") => PP.apiFetch(`/admin/users/${query ? "?" + query : ""}`);

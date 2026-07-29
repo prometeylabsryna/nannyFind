@@ -34,10 +34,10 @@
   <aside class="cabinet-sidebar"><nav class="card" id="parent-nav"></nav></aside>
   <div><h1 class="cabinet-title">Пошук нянь</h1>
   <button type="button" class="btn btn-secondary filters-mobile-toggle btn-block" id="filters-toggle" aria-expanded="false" aria-controls="filters-mobile-panel">Фільтри</button>
-  <div class="card filters-mobile-panel" id="filters-mobile-panel">
+  <div class="card filters-mobile-panel" id="filters-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="filters-mobile-title">
     <div class="filters-mobile-sheet">
       <div class="filters-panel-head filters-mobile-head">
-        <h2>Фільтри</h2>
+        <p class="filters-panel-title" id="filters-mobile-title">Фільтри</p>
         <button type="button" class="filters-mobile-close" id="filters-mobile-close" aria-label="Закрити фільтри">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -49,7 +49,7 @@
       </div>
     </div>
   </div>
-  <div class="catalog-layout"><aside class="filters-desktop"><div class="card filters-panel"><div class="filters-panel-body" id="filters-desktop"></div>
+  <div class="catalog-layout"><aside class="filters-desktop"><div class="card filters-panel"><div class="filters-panel-head"><h2 class="filters-panel-title">Фільтри</h2></div><div class="filters-panel-body" id="filters-desktop"></div>
         <div class="filters-panel-footer">
           <button type="button" class="btn btn-secondary btn-block" id="filters-reset-desktop">Скинути фільтри</button>
         </div>

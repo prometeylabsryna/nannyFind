@@ -91,15 +91,17 @@ PP.processCheckout = async (planCode, provider) => {
   throw new Error("Невідомий формат checkout від провайдера.");
 };
 
+PP.findActiveSubscription = (subs) =>
+  (subs || []).find(
+    (s) =>
+      s.status === "active" &&
+      (s.contacts_remaining > 0 || (s.city_access_until && new Date(s.city_access_until) > new Date()))
+  );
+
 PP.waitForActiveSubscription = async (timeoutMs = 60000, intervalMs = 2000) => {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
-    const subs = await PP.fetchSubscriptions();
-    const active = (subs || []).find(
-      (s) =>
-        s.status === "active" &&
-        (s.contacts_remaining > 0 || (s.city_access_until && new Date(s.city_access_until) > new Date()))
-    );
+    const active = PP.findActiveSubscription(await PP.fetchSubscriptions());
     if (active) return active;
     await new Promise((r) => setTimeout(r, intervalMs));
   }
@@ -141,11 +143,7 @@ PP.getSelectedProvider = () => {
 
 PP.renderSubscriptionBanner = (container, subs) => {
   if (!container) return;
-  const active = (subs || []).find(
-    (s) =>
-      s.status === "active" &&
-      (s.contacts_remaining > 0 || (s.city_access_until && new Date(s.city_access_until) > new Date()))
-  );
+  const active = PP.findActiveSubscription(subs);
   if (!active) {
     container.innerHTML = "";
     container.hidden = true;
@@ -165,6 +163,38 @@ PP.renderSubscriptionBanner = (container, subs) => {
         <p class="pay-subscription-meta">${detail}</p>
       </div>
     </div>`;
+};
+
+PP._profilePhoneSubscribeHint = () => `
+  <span class="profile-phone-hint-text">Щоб переглянути телефон, потрібно купити підписку.</span>
+  <a href="${PP.ROUTES.parentPayments}" class="btn btn-secondary btn-block profile-phone-subscribe-btn">Оформити підписку</a>`;
+
+PP._bindProfilePhoneUnlock = (block, nannyId, btn, hint) => {
+  if (!btn || !hint) return;
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    hint.classList.remove("profile-phone-hint--error", "profile-phone-hint--ok");
+    hint.textContent = "Завантаження…";
+    try {
+      const res = await PP.unlockContact(Number(nannyId));
+      block.innerHTML = `
+        <p class="profile-phone-label">Телефон</p>
+        <a href="tel:${res.phone.replace(/\s/g, "")}" class="profile-phone-link">${res.phone}</a>`;
+      PP.showToast?.("Контакт відкрито");
+      document.dispatchEvent(
+        new CustomEvent("pp:contact-unlocked", { detail: { nannyId: String(nannyId) } })
+      );
+    } catch (err) {
+      if (err.status === 402) {
+        hint.classList.add("profile-phone-hint--error");
+        hint.innerHTML = PP._profilePhoneSubscribeHint();
+      } else {
+        hint.classList.remove("profile-phone-hint--error");
+        hint.textContent = err.message || "Помилка";
+      }
+      btn.disabled = false;
+    }
+  });
 };
 
 PP.initProfilePhone = async (nannyId, phoneFromApi) => {
@@ -194,36 +224,26 @@ PP.initProfilePhone = async (nannyId, phoneFromApi) => {
     block.innerHTML = `<p class="profile-phone-hint">Телефон доступний лише батькам з активною підпискою.</p>`;
     return;
   }
+
+  let active = null;
+  try {
+    active = PP.findActiveSubscription(await PP.fetchSubscriptions());
+  } catch {
+    active = null;
+  }
+
+  const statusHtml = active
+    ? `<div class="profile-phone-hint profile-phone-hint--ok" id="profile-unlock-hint">Підписка активна</div>`
+    : `<div class="profile-phone-hint profile-phone-hint--error" id="profile-unlock-hint">${PP._profilePhoneSubscribeHint()}</div>`;
+
   block.innerHTML = `
     <p class="profile-phone-label">Телефон</p>
     <button type="button" class="btn btn-primary btn-block" id="profile-unlock-btn">📞 Показати телефон</button>
-    <div class="profile-phone-hint" id="profile-unlock-hint">Потрібна активна підписка</div>`;
-  const btn = document.getElementById("profile-unlock-btn");
-  const hint = document.getElementById("profile-unlock-hint");
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    hint.classList.remove("profile-phone-hint--error");
-    hint.textContent = "Завантаження…";
-    try {
-      const res = await PP.unlockContact(Number(nannyId));
-      block.innerHTML = `
-        <p class="profile-phone-label">Телефон</p>
-        <a href="tel:${res.phone.replace(/\s/g, "")}" class="profile-phone-link">${res.phone}</a>`;
-      PP.showToast?.("Контакт відкрито");
-      document.dispatchEvent(
-        new CustomEvent("pp:contact-unlocked", { detail: { nannyId: String(nannyId) } })
-      );
-    } catch (err) {
-      hint.classList.remove("profile-phone-hint--error");
-      if (err.status === 402) {
-        hint.classList.add("profile-phone-hint--error");
-        hint.innerHTML = `
-          <span class="profile-phone-hint-text">Щоб переглянути телефон, потрібно купити підписку.</span>
-          <a href="${PP.ROUTES.parentPayments}" class="btn btn-secondary btn-block profile-phone-subscribe-btn">Оформити підписку</a>`;
-      } else {
-        hint.textContent = err.message || "Помилка";
-      }
-      btn.disabled = false;
-    }
-  });
+    ${statusHtml}`;
+  PP._bindProfilePhoneUnlock(
+    block,
+    nannyId,
+    document.getElementById("profile-unlock-btn"),
+    document.getElementById("profile-unlock-hint")
+  );
 };

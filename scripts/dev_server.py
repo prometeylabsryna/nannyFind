@@ -13,7 +13,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_ROOT = os.path.join(ROOT, "backend", "media")
 
-CITY_SLUGS = {"kyiv", "lviv", "dnipro"}
+CITY_SLUGS = {"kyiv", "lviv", "dnipro", "kharkiv"}
 
 STATIC_ROUTES: list[tuple[str, str]] = [
     (r"^/register/?$", "register.html"),

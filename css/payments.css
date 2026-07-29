@@ -129,6 +129,11 @@
   line-height: 1.5;
 }
 
+.profile-phone-hint--ok {
+  color: var(--calm-dark, #6b9a7a);
+  font-weight: 500;
+}
+
 .profile-phone-hint--error {
   display: flex;
   flex-direction: column;
@@ -151,6 +156,7 @@
 
 .pricing-card .btn[data-plan] {
   margin-top: auto;
+  flex-shrink: 0;
   min-height: var(--touch, 44px);
 }
 

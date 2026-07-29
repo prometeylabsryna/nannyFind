@@ -478,11 +478,37 @@ PP.uploadRegisterDocs = async () => {
   }
 };
 
+PP.setLoginFormError = (form, message = "") => {
+  const errEl = document.getElementById("login-error");
+  const emailInput = form?.querySelector('[type="email"]');
+  const passwordInput = form?.querySelector('[type="password"]');
+  const msg = String(message || "").trim();
+
+  if (errEl) {
+    errEl.textContent = msg;
+    errEl.hidden = !msg;
+  }
+
+  [emailInput, passwordInput].forEach((input) => {
+    if (!input) return;
+    input.classList.toggle("is-invalid", Boolean(msg));
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+  });
+};
+
 PP.initLoginForm = () => {
   const form = document.getElementById("login-form");
   if (!form) return;
+
+  form.addEventListener("input", () => {
+    if (document.getElementById("login-error")?.hidden === false) {
+      PP.setLoginFormError(form, "");
+    }
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    PP.setLoginFormError(form, "");
     if (PP.validateFormContacts && !PP.validateFormContacts(form)) return;
     const email = form.querySelector('[type="email"]')?.value?.trim();
     const password = form.querySelector('[type="password"]')?.value;
@@ -496,23 +522,28 @@ PP.initLoginForm = () => {
       const next = params.get("next") || "";
       const isReauth = params.get("reauth") === "1";
       if (isReauth && PP.needsParentAccount(next) && data.user?.role !== "parent") {
-        PP.showToast(
-          "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email.",
-          "error"
-        );
+        const msg =
+          "Чат з нянями доступний лише для акаунта батьків. Зареєструйтеся як батьки або увійдіть під іншим email.";
+        PP.setLoginFormError(form, msg);
+        PP.showToast(msg, "error");
         PP.clearSession();
         return;
       }
 
       if (isReauth && PP.needsAdminAccount(next) && !PP.isPlatformAdmin(data.user)) {
-        PP.showToast("Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.", "error");
+        const msg = "Доступ лише для адміністраторів. Увійдіть під іншим обліковим записом.";
+        PP.setLoginFormError(form, msg);
+        PP.showToast(msg, "error");
         PP.clearSession();
         return;
       }
 
       PP.authRedirectAfterLogin(data.user.role);
     } catch (err) {
-      PP.showToast(err.message || "Помилка входу. Перевірте email і пароль.", "error");
+      const msg = err?.message || "Невірний email або пароль.";
+      PP.setLoginFormError(form, msg);
+      PP.showToast(msg, "error");
+      form.querySelector('[type="password"]')?.focus?.();
     } finally {
       btn.disabled = false;
     }
@@ -559,12 +590,8 @@ PP.initResetPassword = () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (PP.validateFormContacts && !PP.validateFormContacts(form)) return;
     const password = form.querySelector('[type="password"]')?.value;
-    const confirm = form.querySelector('[name="password_confirm"]')?.value;
-    if (password !== confirm) {
-      PP.showToast("Паролі не збігаються.", "error");
-      return;
-    }
     const btn = form.querySelector('[type="submit"]');
     btn.disabled = true;
     try {

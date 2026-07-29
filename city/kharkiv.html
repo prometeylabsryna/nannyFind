@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Політика конфіденційності — Поміч поруч</title>
-  <meta name="description" content="Політика конфіденційності">
+  <title>Няні у Харкові</title>
+  <meta name="description" content="Перевірені няні у Харкові. Безпечний пошук та швидкий підбір.">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/images/favicon-32x32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="/images/favicon-16x16.png" type="image/png" sizes="16x16">
@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/documents.css">
   <link rel="stylesheet" href="/css/page-decor.css">
+  <link rel="stylesheet" href="/css/catalog-city.css">
   <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head>
 <body>
@@ -41,21 +42,28 @@
   <span class="page-decor-icon page-decor-icon--baby">👶</span>
   <span class="page-decor-icon page-decor-icon--home">🏠</span>
 </div><div class="page-backdrop-content">
-<section class="page-hero page-hero-compact"><div class="page-hero-bg page-hero-bg--animated"></div><div class="container page-hero-inner"><h1 class="page-hero-title" data-static-title>Політика конфіденційності</h1></div></section>
-<div class="page-content-area">
-<div class="container page-content-inner page-content-inner--legal">
-  <div class="card legal-content" data-static-body><p class="legal-meta">Текст документа керується в адмінці (Статичні сторінки).</p><p class="legal-hint"><em>Якщо цей текст не замінився — перевірте API /content/pages/… або опублікуйте відповідну StaticPage.</em></p>
+<section class="page-hero page-hero-compact"><div class="page-hero-bg"></div><div class="container page-hero-inner">
+  <nav class="breadcrumbs"><a href="/">Головна</a> / <a href="/nanny/">Каталог</a> / <span>Харків</span></nav>
+  <h1 class="page-hero-title">Няні у Харкові</h1>
+  <p class="city-hero-subtitle">Перевірені та сертифіковані няні — знайдіть свою за кілька хвилин</p>
+  <div class="city-hero-pills">
+    <span class="city-hero-pill"><span class="city-hero-pill-icon">✓</span> Перевірені профілі</span>
+    <span class="city-hero-pill"><span class="city-hero-pill-icon">⭐</span> Рейтинг та відгуки</span>
+    <span class="city-hero-pill"><span class="city-hero-pill-icon">📅</span> Доступність онлайн</span>
   </div>
-  <aside class="card page-aside-help">
-  <h2>Потрібна допомога?</h2>
-  <nav class="page-aside-links" aria-label="Корисні посилання">
-    <a href="/faq/"><span>❓</span> Часті запитання</a>
-    <a href="/contacts"><span>✉️</span> Написати нам</a>
-    <a href="/how-it-works"><span>📋</span> Як це працює</a>
-    <a href="/nanny/"><span>🔍</span> Знайти няню</a>
-  </nav>
-</aside>
-</div></div>
+</div></section>
+<div class="container city-catalog-wrap">
+  <div class="city-catalog-head">
+    <p class="city-catalog-count"><strong id="city-count">—</strong> нянь у Харкові</p>
+    <a href="/nanny/?city=Харків" class="btn btn-secondary" style="font-size:0.875rem">Розширений пошук →</a>
+  </div>
+  <div class="catalog-grid" id="city-grid"></div>
+  <div class="city-cta-band">
+    <h2 class="city-cta-band-title">Не знайшли підходящу няню?</h2>
+    <p class="city-cta-band-text">Скористайтеся розширеним пошуком із фільтрами по досвіду, ціні та доступності</p>
+    <a href="/nanny/?city=Харків" class="btn btn-primary">Розширений пошук</a>
+  </div>
+</div>
 </div></div></main>
   <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
   <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
@@ -85,7 +93,7 @@
       if (PP.loadSiteContent) await PP.loadSiteContent();
       PP.initLayout();
       PP.initCookie();
-      
+      PP.initCityPage('Харків');
     });
   </script>
 </body>

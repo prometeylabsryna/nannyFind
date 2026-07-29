@@ -27,14 +27,25 @@ class ImagePreviewMixin:
         return getattr(obj, "photo_url", "") or getattr(obj, "image_url", "")
 
 
+def tinymce_widget(*, height: int = 400):
+    from tinymce.widgets import TinyMCE
+
+    return TinyMCE(
+        mce_attrs={
+            "height": height,
+            "menubar": False,
+            "plugins": "link lists image code",
+            "toolbar": "undo redo | bold italic underline | bullist numlist | link image | code",
+        }
+    )
+
+
 class TinyMCEAdminMixin:
     tinymce_fields: tuple[str, ...] = ()
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name in self.tinymce_fields:
-            from tinymce.widgets import TinyMCE
-
-            kwargs["widget"] = TinyMCE()
+            kwargs["widget"] = tinymce_widget()
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 

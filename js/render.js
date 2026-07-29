@@ -7,6 +7,39 @@ PP.stars = (rating) => {
   return `<span class="stars">${s}</span>`;
 };
 
+/** Рейтинг лише з реальних відгуків: 0 = немає відгуків. */
+PP.nannyReviewCount = (n) => Number(n?.reviewCount ?? n?.review_count ?? 0) || 0;
+
+PP.formatNannyRating = (rating) => {
+  const n = Number(rating);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return n.toFixed(2);
+};
+
+PP.syncNannyRatingFromReviews = (nanny, reviews) => {
+  const list = Array.isArray(reviews) ? reviews : [];
+  const count = list.length;
+  if (!count) {
+    nanny.reviewCount = 0;
+    nanny.rating = 0;
+    return nanny;
+  }
+  const sum = list.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+  nanny.reviewCount = count;
+  nanny.rating = Math.round((sum / count) * 100) / 100;
+  return nanny;
+};
+
+PP.nannyRatingMarkup = (n, opts = {}) => {
+  const count = PP.nannyReviewCount(n);
+  if (count <= 0) return "";
+  const value = PP.formatNannyRating(n.rating);
+  if (!value) return "";
+  const countText = opts.reviewsLabel === false ? `(${count})` : `(${count} відг.)`;
+  const countClass = opts.countClass || "nanny-card-photo-reviews";
+  return `${PP.stars(n.rating)}<strong>${value}</strong><span class="${countClass}">${countText}</span>`;
+};
+
 PP.nannyPhotoInitial = (name) => {
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
   return (parts[0]?.[0] || "👤").toUpperCase();
@@ -58,9 +91,7 @@ PP.renderNannyCard = (n, opts = {}) => {
     <button type="button" class="nanny-card-fav" data-nanny-id="${n.id}" aria-label="Додати в обране">${PP.favHeartIcon()}</button>
     <div class="nanny-card-photo-overlay">
       <h3 class="nanny-card-name"><a href="${PP.ROUTES.nanny(n.id)}">${n.name}</a></h3>
-      <div class="nanny-card-photo-rating">
-        ${PP.stars(n.rating)}<strong>${n.rating}</strong><span class="nanny-card-photo-reviews">(${n.reviewCount} відг.)</span>
-      </div>
+      ${PP.nannyReviewCount(n) > 0 ? `<div class="nanny-card-photo-rating">${PP.nannyRatingMarkup(n)}</div>` : ""}
     </div>
   </div>
   <div class="nanny-card-body">
@@ -147,8 +178,10 @@ PP.renderNannyListItem = (n) => {
       </div>
     </div>
     <div class="nanny-list-aside">
-      <span class="nanny-list-rating">${n.rating} ${PP.stars(n.rating)}</span>
-      <span class="nanny-list-revcount">${n.reviewCount}\u202fвідг.</span>
+      ${PP.nannyReviewCount(n) > 0
+        ? `<span class="nanny-list-rating">${PP.formatNannyRating(n.rating)} ${PP.stars(n.rating)}</span>
+      <span class="nanny-list-revcount">${PP.nannyReviewCount(n)}\u202fвідг.</span>`
+        : `<span class="nanny-list-revcount">Ще немає відгуків</span>`}
       <span class="nanny-list-arrow" aria-hidden="true">›</span>
     </div>
   </a>
@@ -295,7 +328,7 @@ PP.filterNannies = (filters) => PP.NANNIES.filter((n) => {
   if (n.age < filters.nannyAgeMin) return false;
   if (n.experienceYears < filters.experienceMin) return false;
   if (n.hourlyRate > filters.hourlyRateMax) return false;
-  if (n.rating < filters.ratingMin) return false;
+  if (filters.ratingMin > 0 && (PP.nannyReviewCount(n) <= 0 || n.rating < filters.ratingMin)) return false;
   if (filters.hasCar && !n.hasCar) return false;
   if (filters.medicalEducation && !n.medicalEducation) return false;
   if (filters.firstAidCourse && !n.firstAidCourse) return false;

@@ -8,12 +8,28 @@ class SiteSettings(models.Model):
     support_address = models.CharField("Адреса", max_length=255, blank=True)
     work_hours = models.CharField("Години роботи", max_length=128, blank=True)
     facebook_url = models.URLField("Facebook", blank=True)
+    facebook_enabled = models.BooleanField("Показувати Facebook", default=True)
     instagram_url = models.URLField("Instagram", blank=True)
+    instagram_enabled = models.BooleanField("Показувати Instagram", default=True)
     tiktok_url = models.URLField("TikTok", blank=True)
+    tiktok_enabled = models.BooleanField("Показувати TikTok", default=True)
     telegram_url = models.URLField("Telegram", blank=True)
+    telegram_enabled = models.BooleanField("Показувати Telegram", default=True)
     meta_description = models.TextField("Meta description", blank=True)
-    hero_trust_count = models.CharField("Hero: кількість нянь", max_length=32, default="500+")
-    hero_trust_cities = models.CharField("Hero: міста", max_length=64, default="У 5 містах України")
+    hero_trust_count = models.CharField(
+        "Hero: кількість нянь",
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="Порожньо = авто з каталогу. Або свій текст (override).",
+    )
+    hero_trust_cities = models.CharField(
+        "Hero: міста",
+        max_length=64,
+        blank=True,
+        default="",
+        help_text="Порожньо = авто з каталогу. Або свій текст (override).",
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

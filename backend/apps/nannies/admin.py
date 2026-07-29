@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 
-from apps.core.admin_utils import ImagePreviewMixin, ReadOnlyTimestampsMixin
+from apps.core.admin_utils import ImagePreviewMixin, ReadOnlyTimestampsMixin, TinyMCEAdminMixin
 from apps.nannies.models import AvailabilitySlot, NannyDocument, NannyProfile
 
 
@@ -20,7 +20,8 @@ class DocumentInline(TabularInline):
 
 
 @admin.register(NannyProfile)
-class NannyProfileAdmin(ImagePreviewMixin, ReadOnlyTimestampsMixin, ModelAdmin):
+class NannyProfileAdmin(TinyMCEAdminMixin, ImagePreviewMixin, ReadOnlyTimestampsMixin, ModelAdmin):
+    tinymce_fields = ("description", "recommendations")
     list_display = (
         "first_name",
         "last_name",
@@ -52,7 +53,13 @@ class NannyProfileAdmin(ImagePreviewMixin, ReadOnlyTimestampsMixin, ModelAdmin):
         ),
         (
             "Модерація",
-            {"fields": ("is_verified", "moderation_status", "rating_avg", "review_count")},
+            {
+                "fields": ("is_verified", "moderation_status", "rating_avg", "review_count"),
+                "description": (
+                    "Рейтинг і кількість відгуків рахуються автоматично з опублікованих "
+                    "відгуків (Адмінка → Відгуки). Не редагуються вручну."
+                ),
+            },
         ),
         ("Службове", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )

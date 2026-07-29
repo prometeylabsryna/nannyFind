@@ -49,8 +49,12 @@
     <button type="button" class="auth-oauth-btn" data-provider="apple"> Apple</button>
   </div>
   <div class="auth-divider" data-cms="auth.auth_login_divider">або email</div>
-  <form class="auth-form" id="login-form"><input class="field" type="email" placeholder="Email" required><input class="field" type="password" placeholder="Пароль" required>
-  <button type="submit" class="btn btn-primary btn-block" data-cms="auth.auth_login_submit">Увійти</button></form>
+  <p class="auth-error" id="login-error" role="alert" hidden></p>
+  <form class="auth-form" id="login-form">
+    <input class="field" type="email" placeholder="Email" autocomplete="email" required>
+    <input class="field" type="password" placeholder="Пароль" autocomplete="current-password" required>
+    <button type="submit" class="btn btn-primary btn-block" data-cms="auth.auth_login_submit">Увійти</button>
+  </form>
   <p class="auth-footer" data-cms="auth.auth_login_footer" data-cms-html="1">Немає акаунту? <a href="/register">Зареєструватись</a> · <a href="/forgot-password">Забули пароль?</a></p>
 </div><div class="auth-page-trust">
   <span class="auth-trust-pill">🛡 <span data-cms="auth.auth_trust_1">Перевірені профілі</span></span>

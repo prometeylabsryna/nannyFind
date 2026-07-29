@@ -5,7 +5,8 @@ from django.db.models import Avg, Count
 from apps.reviews.models import Review
 
 
-def _refresh_nanny_rating(nanny_id):
+def refresh_nanny_rating(nanny_id):
+    """Перерахувати rating_avg / review_count лише з опублікованих відгуків."""
     from apps.nannies.models import NannyProfile
 
     stats = Review.objects.filter(nanny_id=nanny_id, is_published=True).aggregate(
@@ -18,11 +19,19 @@ def _refresh_nanny_rating(nanny_id):
     )
 
 
+def refresh_all_nanny_ratings():
+    """Синхронізувати рейтинг усіх профілів з реальними відгуками."""
+    from apps.nannies.models import NannyProfile
+
+    for nanny_id in NannyProfile.objects.values_list("pk", flat=True):
+        refresh_nanny_rating(nanny_id)
+
+
 @receiver(post_save, sender=Review)
 def review_saved(sender, instance, **kwargs):
-    _refresh_nanny_rating(instance.nanny_id)
+    refresh_nanny_rating(instance.nanny_id)
 
 
 @receiver(post_delete, sender=Review)
 def review_deleted(sender, instance, **kwargs):
-    _refresh_nanny_rating(instance.nanny_id)
+    refresh_nanny_rating(instance.nanny_id)

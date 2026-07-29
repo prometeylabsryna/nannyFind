@@ -258,14 +258,19 @@ PP.initNannyRating = async () => {
   if (!root) return;
   try {
     const me = await PP.fetchNannyProfile();
+    const reviews = await PP.fetchNannyReviews(me.id);
+    const list = Array.isArray(reviews) ? reviews : (reviews?.results || []);
+    PP.syncNannyRatingFromReviews?.(me, list.map((r) => ({ rating: r.rating })));
     const avgEl = document.getElementById("rating-avg");
     const countEl = document.getElementById("rating-count");
     const ordersEl = document.getElementById("rating-orders");
-    if (avgEl) avgEl.textContent = me.rating ?? "—";
-    if (countEl) countEl.textContent = me.reviewCount ?? me.review_count ?? "0";
+    if (avgEl) {
+      avgEl.textContent = PP.nannyReviewCount(me) > 0
+        ? (PP.formatNannyRating?.(me.rating) || me.rating)
+        : "—";
+    }
+    if (countEl) countEl.textContent = String(PP.nannyReviewCount?.(me) ?? me.reviewCount ?? 0);
     if (ordersEl) ordersEl.textContent = me.completedOrders ?? me.completed_orders ?? "0";
-    const reviews = await PP.fetchNannyReviews(me.id);
-    const list = reviews.results || reviews;
     root.innerHTML = list.length
       ? list
           .map(

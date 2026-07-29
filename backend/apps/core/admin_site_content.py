@@ -19,6 +19,7 @@ from apps.core.block_defaults import (
 )
 from apps.core.block_field_help import field_help_for
 from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdminTextareaWidget
+from apps.core.admin_utils import tinymce_widget
 from apps.core.cms_accent import html_to_markers, markers_to_html
 from apps.core.models import SiteBlock, SiteSettings
 from apps.core.site_content_registry import SECTION_BY_SLUG, ContentSection
@@ -46,7 +47,7 @@ def _widget_for_key(key: str):
     if key in INLINE_KEYS or key in ACCENT_MARKER_KEYS:
         return CmsAdminTextInputWidget()
     if key in MULTILINE_KEYS:
-        return CmsAdminTextareaWidget(rows=4)
+        return tinymce_widget(height=280)
     return CmsAdminTextareaWidget(rows=2)
 
 

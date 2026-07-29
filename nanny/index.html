@@ -48,10 +48,10 @@
 </div></section>
 <div class="container" style="padding-top:2rem;padding-bottom:3rem">
   <button type="button" class="btn btn-secondary filters-mobile-toggle btn-block" id="filters-toggle" data-cms="catalog.catalog_filters_toggle" aria-expanded="false" aria-controls="filters-mobile-panel">Показати фільтри</button>
-  <div class="card filters-mobile-panel" id="filters-mobile-panel">
+  <div class="card filters-mobile-panel" id="filters-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="filters-mobile-title">
     <div class="filters-mobile-sheet">
       <div class="filters-panel-head filters-mobile-head">
-        <h2 data-cms="catalog.catalog_filters_title">Фільтри</h2>
+        <p class="filters-panel-title" data-cms="catalog.catalog_filters_title" id="filters-mobile-title">Фільтри</p>
         <button type="button" class="filters-mobile-close" id="filters-mobile-close" aria-label="Закрити фільтри">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -66,7 +66,7 @@
   <div class="catalog-layout">
     <aside class="filters-desktop">
       <div class="card filters-panel">
-        <div class="filters-panel-head"><h2 data-cms="catalog.catalog_filters_title">Фільтри</h2></div>
+        <div class="filters-panel-head"><h2 class="filters-panel-title" data-cms="catalog.catalog_filters_title">Фільтри</h2></div>
         <div class="filters-panel-body" id="filters-desktop"></div>
         <div class="filters-panel-footer">
           <button type="button" class="btn btn-secondary btn-block" id="filters-reset-desktop">Скинути фільтри</button>
@@ -75,7 +75,7 @@
       <div class="filter-sidebar-tip card">
         <p class="filter-sidebar-tip-title">💡 Як обрати няню?</p>
         <p class="filter-sidebar-tip-text">Перевірені профілі, відгуки батьків і розклад зайнятості на найближчі 2 тижні.</p>
-        <a href="/how-it-works.html" class="filter-sidebar-tip-link">Дізнатись більше →</a>
+        <a href="/how-it-works" class="filter-sidebar-tip-link">Дізнатись більше →</a>
       </div>
     </aside>
     <div class="catalog-col">
@@ -138,6 +138,7 @@
       if (PP.loadSiteContent) await PP.loadSiteContent();
       PP.initLayout();
       PP.initCookie();
+      await PP.loadCities?.();
       PP.initCatalog();
     });
   </script>

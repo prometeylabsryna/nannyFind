@@ -1,4 +1,4 @@
-/* Phone (+380) and email live validation */
+/* Phone (+380), email and password live validation (UA messages, no native tooltips) */
 window.PP = window.PP || {};
 
 PP.UA_PHONE_RE = /^\+380\d{9}$/;
@@ -29,9 +29,27 @@ PP.getEmailError = (value, { required = false } = {}) => {
   return "";
 };
 
+PP.getPasswordMinLength = (input) => {
+  if (!input?.hasAttribute("minlength")) return 0;
+  const n = Number(input.getAttribute("minlength"));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+PP.getPasswordError = (value, { required = false, minLength = 0 } = {}) => {
+  const v = String(value || "");
+  if (!v) return required ? "Вкажіть пароль" : "";
+  if (minLength && v.length < minLength) {
+    return `Пароль має містити щонайменше ${minLength} символів`;
+  }
+  return "";
+};
+
 PP._ensureFieldErrorEl = (input) => {
   const id = input.id ? `${input.id}-error` : "";
-  let el = input.parentElement?.querySelector(".field-error");
+  let el = id ? document.getElementById(id) : null;
+  if (!el && input.nextElementSibling?.classList?.contains("field-error")) {
+    el = input.nextElementSibling;
+  }
   if (!el) {
     el = document.createElement("p");
     el.className = "field-error";
@@ -52,6 +70,7 @@ PP.setFieldError = (input, message) => {
   const invalid = Boolean(message);
   input.classList.toggle("is-invalid", invalid);
   input.setAttribute("aria-invalid", invalid ? "true" : "false");
+  input.setCustomValidity?.(message || "");
   el.textContent = message || "";
   el.hidden = !invalid;
 };
@@ -74,6 +93,35 @@ PP.validateEmailField = (input) => {
   const required = input.hasAttribute("required");
   const error = PP.getEmailError(input.value, { required });
   PP.setFieldError(input, error);
+  return !error;
+};
+
+PP.validatePasswordField = (input) => {
+  if (!input) return true;
+  const required = input.hasAttribute("required");
+  const minLength = PP.getPasswordMinLength(input);
+  let error = PP.getPasswordError(input.value, { required, minLength });
+  if (!error && input.name === "password_confirm") {
+    const pwd = input.form?.querySelector(
+      'input[type="password"]:not([name="password_confirm"])'
+    );
+    if (pwd && input.value !== pwd.value) error = "Паролі не збігаються";
+  }
+  PP.setFieldError(input, error);
+  return !error;
+};
+
+PP.validateRequiredField = (el) => {
+  if (!el || !el.hasAttribute("required")) return true;
+  if (
+    el.matches(
+      'input[type="email"], input[type="password"], input[type="tel"], input[name="phone"], input[type="hidden"], input[type="file"], input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="button"]'
+    )
+  ) {
+    return true;
+  }
+  const error = String(el.value || "").trim() ? "" : "Заповніть поле";
+  PP.setFieldError(el, error);
   return !error;
 };
 
@@ -129,13 +177,47 @@ PP.bindEmailField = (input) => {
   });
 };
 
+PP.bindPasswordField = (input) => {
+  if (!input || input.dataset.ppValidateBound) return;
+  input.dataset.ppValidateBound = "1";
+
+  const syncConfirm = () => {
+    const confirm = input.form?.querySelector('input[name="password_confirm"]');
+    if (confirm && confirm !== input && confirm.value) PP.validatePasswordField(confirm);
+  };
+
+  input.addEventListener("input", () => {
+    PP.validatePasswordField(input);
+    if (input.name !== "password_confirm") syncConfirm();
+  });
+
+  input.addEventListener("blur", () => {
+    PP.validatePasswordField(input);
+  });
+};
+
+PP.disableNativeFormValidation = (root = document) => {
+  root.querySelectorAll("form").forEach((form) => {
+    if (
+      form.querySelector(
+        'input[type="email"], input[type="password"], input[type="tel"], input[name="phone"]'
+      )
+    ) {
+      form.setAttribute("novalidate", "");
+    }
+  });
+};
+
 PP.initFieldValidation = (root = document) => {
+  PP.disableNativeFormValidation(root);
   root.querySelectorAll('input[type="tel"], input[name="phone"]').forEach(PP.bindPhoneField);
   root.querySelectorAll('input[type="email"]').forEach(PP.bindEmailField);
+  root.querySelectorAll('input[type="password"]').forEach(PP.bindPasswordField);
 };
 
 PP.validateFormContacts = (form) => {
   if (!form) return true;
+  form.setAttribute("novalidate", "");
   let ok = true;
   form.querySelectorAll('input[type="tel"], input[name="phone"]').forEach((input) => {
     if (!PP.validatePhoneField(input)) ok = false;
@@ -143,8 +225,14 @@ PP.validateFormContacts = (form) => {
   form.querySelectorAll('input[type="email"]').forEach((input) => {
     if (!PP.validateEmailField(input)) ok = false;
   });
+  form.querySelectorAll('input[type="password"]').forEach((input) => {
+    if (!PP.validatePasswordField(input)) ok = false;
+  });
+  form.querySelectorAll("input[required], textarea[required]").forEach((el) => {
+    if (!PP.validateRequiredField(el)) ok = false;
+  });
   if (!ok) {
-    const first = form.querySelector(".field.is-invalid, input.is-invalid");
+    const first = form.querySelector(".field.is-invalid, input.is-invalid, textarea.is-invalid");
     first?.focus?.({ preventScroll: false });
   }
   return ok;
@@ -155,7 +243,14 @@ document.addEventListener(
   (e) => {
     const form = e.target;
     if (!(form instanceof HTMLFormElement)) return;
-    if (!form.querySelector('input[type="tel"], input[name="phone"], input[type="email"]')) return;
+    if (
+      !form.querySelector(
+        'input[type="tel"], input[name="phone"], input[type="email"], input[type="password"]'
+      )
+    ) {
+      return;
+    }
+    form.setAttribute("novalidate", "");
     if (!PP.validateFormContacts(form)) {
       e.preventDefault();
       e.stopPropagation();
@@ -164,6 +259,9 @@ document.addEventListener(
   true
 );
 
-document.addEventListener("DOMContentLoaded", () => {
-  PP.initFieldValidation();
-});
+const bootFieldValidation = () => PP.initFieldValidation();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootFieldValidation);
+} else {
+  bootFieldValidation();
+}

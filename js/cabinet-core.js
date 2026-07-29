@@ -193,7 +193,11 @@ PP.showToast = (msg, type = "info") => {
   el.dataset.type = type;
   clearTimeout(PP._toastTimer);
   el.classList.remove("visible");
-  requestAnimationFrame(() => el.classList.add("visible"));
+  // Force reflow so the enter transition always runs (iOS Safari / batched frames).
+  void el.offsetWidth;
+  requestAnimationFrame(() => {
+    el.classList.add("visible");
+  });
   PP._toastTimer = setTimeout(() => el.classList.remove("visible"), type === "error" ? 4500 : 3500);
 };
 

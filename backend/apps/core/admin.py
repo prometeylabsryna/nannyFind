@@ -19,12 +19,29 @@ class SiteSettingsAdmin(SingletonModelAdminMixin, ModelAdmin):
                 "description": "Глобальні контакти та назва. Email/телефон у підвалі — у розділі «Підвал».",
             },
         ),
-        ("Соцмережі", {"fields": ("instagram_url", "facebook_url", "tiktok_url", "telegram_url")}),
+        (
+            "Соцмережі",
+            {
+                "fields": (
+                    ("instagram_url", "instagram_enabled"),
+                    ("facebook_url", "facebook_enabled"),
+                    ("tiktok_url", "tiktok_enabled"),
+                    ("telegram_url", "telegram_enabled"),
+                ),
+                "description": (
+                    "URL зберігається навіть якщо галочку знято. "
+                    "Без галочки іконка не показується на сайті."
+                ),
+            },
+        ),
         (
             "SEO",
             {
                 "fields": ("meta_description", "hero_trust_count", "hero_trust_cities"),
-                "description": "Hero trust — дубль у «Головна — Hero», якщо потрібен один source правди.",
+                "description": (
+                    "Hero trust краще редагувати в «Головна — Hero». "
+                    "Порожнє поле = автоцифри з каталогу; заповнене = ручний override."
+                ),
             },
         ),
         ("Службове", {"fields": ("updated_at",)}),

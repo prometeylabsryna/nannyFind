@@ -4,6 +4,12 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/admin/site_content.css' %}?v=2">
+  {{ form.media.css }}
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ form.media.js }}
 {% endblock %}
 
 {% block breadcrumbs %}

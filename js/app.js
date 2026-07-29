@@ -96,8 +96,119 @@ PP.bindChatOpenButtons = (root = document) => {
   });
 };
 
+PP.syncStickyCtaHeight = () => {
+  const root = document.documentElement;
+  const el = document.querySelector(".sticky-cta");
+  if (!el) {
+    root.style.setProperty("--sticky-cta-h", "0px");
+    return;
+  }
+  const style = getComputedStyle(el);
+  const hidden =
+    document.body.classList.contains("cookie-consent-open") ||
+    el.classList.contains("sticky-cta--near-footer") ||
+    style.display === "none" ||
+    style.visibility === "hidden";
+  if (hidden) {
+    root.style.setProperty("--sticky-cta-h", "0px");
+    return;
+  }
+  const h = Math.ceil(el.getBoundingClientRect().height);
+  root.style.setProperty("--sticky-cta-h", `${Math.max(0, h)}px`);
+};
+
+PP.initStickyCtaFooterHide = () => {
+  const setNearFooter = (near) => {
+    const cta = document.querySelector(".sticky-cta");
+    if (!cta) return;
+    cta.classList.toggle("sticky-cta--near-footer", near);
+    cta.setAttribute("aria-hidden", near ? "true" : "false");
+    if (near) cta.setAttribute("inert", "");
+    else cta.removeAttribute("inert");
+    PP.syncStickyCtaHeight();
+  };
+
+  const bind = () => {
+    PP._stickyCtaFooterObs?.disconnect();
+    PP._stickyCtaFooterObs = null;
+    const cta = document.querySelector(".sticky-cta");
+    const footer = document.querySelector(".site-footer");
+    if (!cta || !footer || typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setNearFooter(false);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([entry]) => setNearFooter(Boolean(entry?.isIntersecting)),
+      { root: null, threshold: 0, rootMargin: "0px" }
+    );
+    obs.observe(footer);
+    PP._stickyCtaFooterObs = obs;
+  };
+
+  PP._bindStickyCtaFooterHide = bind;
+  bind();
+
+  if (PP._stickyCtaFooterInit) return;
+  PP._stickyCtaFooterInit = true;
+  window.addEventListener("resize", bind, { passive: true });
+  document.body.addEventListener("htmx:afterSwap", (e) => {
+    const t = e.detail?.target;
+    if (!t) return;
+    if (t.id === "site-footer" || t.querySelector?.(".site-footer") || t.classList?.contains("site-footer")) {
+      bind();
+    }
+  });
+};
+
+PP.initStickyCtaOffset = () => {
+  const run = () => PP.syncStickyCtaHeight();
+  run();
+  PP.initStickyCtaFooterHide();
+  if (PP._stickyCtaInit) return;
+  PP._stickyCtaInit = true;
+  window.addEventListener("resize", run, { passive: true });
+  window.visualViewport?.addEventListener("resize", run, { passive: true });
+  window.visualViewport?.addEventListener("scroll", run, { passive: true });
+  const el = document.querySelector(".sticky-cta");
+  if (el && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(run).observe(el);
+  }
+};
+
+PP.syncFooterAccordion = (root = document) => {
+  const scope =
+    root.id === "site-footer"
+      ? root
+      : root.classList?.contains("site-footer")
+        ? root
+        : root.querySelector?.(".site-footer") || document.querySelector("#site-footer, .site-footer");
+  if (!scope) return;
+  const mobile = window.matchMedia("(max-width: 767px)").matches;
+  scope.querySelectorAll("details.footer-acc").forEach((el) => {
+    el.open = !mobile;
+  });
+};
+
+PP.initFooterAccordion = () => {
+  PP.syncFooterAccordion();
+  if (window.__ppFooterAccBound) return;
+  window.__ppFooterAccBound = true;
+  const mq = window.matchMedia("(max-width: 767px)");
+  mq.addEventListener("change", () => PP.syncFooterAccordion());
+  document.body.addEventListener("htmx:afterSwap", (e) => {
+    const t = e.detail?.target;
+    if (!t) return;
+    if (t.id === "site-footer" || t.querySelector?.(".site-footer") || t.querySelector?.("details.footer-acc")) {
+      PP.syncFooterAccordion(t);
+    }
+  });
+};
+
 PP.initLayout = async () => {
   PP.initPageTransitions();
+  PP.initStickyCtaOffset();
+  PP.initFooterAccordion();
 
   const path = location.pathname;
   PP.NAV.forEach((l) => {
@@ -119,16 +230,157 @@ PP.initLayout = async () => {
 
   await PP.updateAuthHeader();
   PP.initFavoriteButtons?.();
+  PP.syncStickyCtaHeight();
+};
+
+PP.COOKIE_CONSENT_KEY = "pp-cookie-consent";
+
+PP.readCookieValue = (name) => {
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = document.cookie.match(new RegExp(`(?:^|; )${esc}=([^;]*)`));
+  return m ? decodeURIComponent(m[1]) : null;
+};
+
+PP.getCookieConsent = () => {
+  const KEY = PP.COOKIE_CONSENT_KEY;
+  try {
+    const raw = localStorage.getItem(KEY) || PP.readCookieValue(KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!localStorage.getItem(KEY)) localStorage.setItem(KEY, raw);
+    return data;
+  } catch {
+    return null;
+  }
+};
+
+PP.setCookieConsent = (data) => {
+  const KEY = PP.COOKIE_CONSENT_KEY;
+  const raw = JSON.stringify(data);
+  try { localStorage.setItem(KEY, raw); } catch { /* ignore */ }
+  const secure = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${KEY}=${encodeURIComponent(raw)}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+};
+
+PP.setCookieConsentOpen = (on) => {
+  document.body.classList.toggle("cookie-consent-open", Boolean(on));
+  PP.syncStickyCtaHeight?.();
+};
+
+PP.hideCookieBanner = (banner = document.getElementById("cookie-banner")) => {
+  if (!banner) return;
+  banner.classList.remove("visible");
+  banner.hidden = true;
+  banner.setAttribute("aria-hidden", "true");
+  banner.setAttribute("inert", "");
+  PP.setCookieConsentOpen(false);
+  if (document.activeElement && banner.contains(document.activeElement)) {
+    try { document.activeElement.blur(); } catch { /* ignore */ }
+  }
 };
 
 PP.initCookie = () => {
-  const KEY = "pp-cookie-consent";
-  if (localStorage.getItem(KEY)) return;
   const banner = document.getElementById("cookie-banner");
   if (!banner) return;
-  setTimeout(() => banner.classList.add("visible"), 600);
 
-  const save = (data) => { localStorage.setItem(KEY, JSON.stringify(data)); banner.classList.remove("visible"); };
+  if (PP.getCookieConsent()) {
+    PP.hideCookieBanner(banner);
+    return;
+  }
+
+  if (banner.dataset.cookieInit) return;
+  banner.dataset.cookieInit = "1";
+  PP.hideCookieBanner(banner);
+
+  let previouslyFocused = null;
+
+  const backdropRoots = () =>
+    Array.from(document.body.children).filter((el) => !el.contains(banner));
+
+  const setPageInert = (on) => {
+    backdropRoots().forEach((el) => {
+      if (on) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    });
+  };
+
+  const unlockBanner = () => {
+    banner.hidden = false;
+    banner.removeAttribute("aria-hidden");
+    banner.removeAttribute("inert");
+  };
+
+  const pinToViewportBottom = () => {
+    /* Force bottom anchoring — never top: Npx equal to viewport height */
+    banner.style.removeProperty("top");
+    banner.style.top = "auto";
+    banner.style.bottom = "0";
+    banner.style.left = "0";
+    banner.style.right = "0";
+    if (getComputedStyle(banner).position !== "fixed") {
+      banner.style.position = "fixed";
+    }
+  };
+
+  const isInViewport = () => {
+    const r = banner.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    return r.height > 0 && r.top < vh && r.bottom > 0 && r.top < vh - 8;
+  };
+
+  const save = (data) => {
+    PP.setCookieConsent(data);
+    PP.hideCookieBanner(banner);
+    setPageInert(false);
+    document.removeEventListener("keydown", onKeydown);
+    if (previouslyFocused && typeof previouslyFocused.focus === "function") {
+      try { previouslyFocused.focus(); } catch { /* ignore */ }
+    }
+  };
+
+  const onKeydown = (e) => {
+    if (e.key !== "Escape" || !banner.classList.contains("visible")) return;
+    e.preventDefault();
+    save({ n: true, a: false, m: false });
+  };
+
+  const open = () => {
+    if (PP.getCookieConsent()) {
+      PP.hideCookieBanner(banner);
+      return;
+    }
+    previouslyFocused = document.activeElement;
+    pinToViewportBottom();
+    // Keep inert until fully shown so Tab cannot hit opacity:0 controls
+    banner.hidden = false;
+    banner.setAttribute("aria-hidden", "true");
+    banner.setAttribute("inert", "");
+    banner.classList.remove("visible");
+    void banner.offsetWidth;
+    setTimeout(() => {
+      banner.classList.add("visible");
+      unlockBanner();
+      PP.setCookieConsentOpen(true);
+      setPageInert(true);
+      pinToViewportBottom();
+      if (!isInViewport()) {
+        banner.style.transform = "none";
+        pinToViewportBottom();
+      }
+      document.addEventListener("keydown", onKeydown);
+      document.getElementById("cookie-accept")?.focus();
+      setTimeout(() => {
+        if (!banner.classList.contains("visible")) return;
+        if (getComputedStyle(banner).opacity === "1" && isInViewport()) return;
+        banner.getAnimations?.().forEach((a) => {
+          try { a.finish(); } catch { /* ignore */ }
+        });
+        pinToViewportBottom();
+      }, 400);
+    }, 20);
+  };
+
+  setTimeout(open, 600);
 
   document.getElementById("cookie-accept")?.addEventListener("click", () => save({ n: true, a: true, m: true }));
   document.getElementById("cookie-reject")?.addEventListener("click", () => save({ n: true, a: false, m: false }));
@@ -143,6 +395,15 @@ PP.initCookie = () => {
     });
   });
 };
+
+if (!window.__ppCookieHtmxBound) {
+  window.__ppCookieHtmxBound = true;
+  document.body.addEventListener("htmx:afterSwap", (e) => {
+    const t = e.detail?.target;
+    if (!t) return;
+    if (t.id === "cookie-banner" || t.querySelector?.("#cookie-banner")) PP.initCookie();
+  });
+}
 
 PP.initFAQ = () => {
   document.querySelectorAll(".faq-item").forEach((item) => {
@@ -206,8 +467,20 @@ PP.initCatalog = () => {
     PP.renderFilters(mobile, mobileDraft, () => {});
   };
 
+  const panelHome = panel
+    ? { parent: panel.parentNode, next: panel.nextSibling }
+    : null;
+
   const setMobileOpen = (open) => {
     if (!panel) return;
+    if (open) {
+      /* виносимо з .page-backdrop / cabinet-layout — їх overflow кліпає fixed-оверлей */
+      if (panel.parentNode !== document.body) {
+        document.body.appendChild(panel);
+      }
+    } else if (panelHome?.parent && panel.parentNode === document.body) {
+      panelHome.parent.insertBefore(panel, panelHome.next);
+    }
     panel.classList.toggle("open", open);
     document.body.classList.toggle("filters-mobile-open", open);
     if (toggle) {
@@ -373,15 +646,31 @@ PP.initProfile = async () => {
     return;
   }
   let reviews = [];
+  let reviewsTotal = 0;
   try {
     const apiReviews = await PP.fetchNannyReviews(id);
-    reviews = (apiReviews || []).map((r) => ({
+    const raw = Array.isArray(apiReviews) ? apiReviews : (apiReviews?.results || []);
+    reviewsTotal = Array.isArray(apiReviews)
+      ? raw.length
+      : Number(apiReviews?.count ?? raw.length);
+    reviews = raw.map((r) => ({
       author: r.author || r.author_name || "Батьки",
       rating: r.rating,
       text: r.text || r.comment || "",
     }));
   } catch {
-    if (PP.useMockFallback?.()) reviews = PP.REVIEWS[id] || [];
+    if (PP.useMockFallback?.()) {
+      reviews = PP.REVIEWS[id] || [];
+      reviewsTotal = reviews.length;
+    }
+  }
+  if (reviewsTotal <= 0) {
+    nanny.reviewCount = 0;
+    nanny.rating = 0;
+  } else if (reviews.length === reviewsTotal) {
+    PP.syncNannyRatingFromReviews(nanny, reviews);
+  } else {
+    nanny.reviewCount = reviewsTotal;
   }
   const mode = PP.getViewMode?.() || "guest";
   const favBlock = mode === "parent"
@@ -411,7 +700,9 @@ PP.initProfile = async () => {
               </div>
               <div class="profile-hero-pricing">
                 <div class="nanny-card-price profile-hero-rate">${PP.formatPrice(nanny.hourlyRate)}/год</div>
-                <div class="nanny-card-rating profile-hero-rating">${PP.stars(nanny.rating)} <strong>${nanny.rating}</strong> <span class="nanny-card-meta">(${nanny.reviewCount})</span></div>
+                ${PP.nannyReviewCount(nanny) > 0
+                  ? `<div class="nanny-card-rating profile-hero-rating">${PP.nannyRatingMarkup(nanny, { reviewsLabel: false, countClass: "nanny-card-meta" })}</div>`
+                  : ""}
               </div>
             </div>
             <div class="profile-hero-badges">${badges}</div>
@@ -458,6 +749,7 @@ PP.initProfile = async () => {
     cta.classList.add("chat-open-btn");
     PP.bindChatOpenButtons?.(cta.parentElement || document);
   }
+  PP.syncStickyCtaHeight?.();
 };
 
 PP.initReview = () => {

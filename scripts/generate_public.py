@@ -99,7 +99,7 @@ PAGE_ASIDE = """<aside class="card page-aside-help">
   <nav class="page-aside-links" aria-label="Корисні посилання">
     <a href="/faq.html"><span>❓</span> Часті запитання</a>
     <a href="/contacts.html"><span>✉️</span> Написати нам</a>
-    <a href="/how-it-works.html"><span>📋</span> Як це працює</a>
+    <a href="/how-it-works"><span>📋</span> Як це працює</a>
     <a href="/nanny/"><span>🔍</span> Знайти няню</a>
   </nav>
 </aside>"""
@@ -152,10 +152,13 @@ page("index.html", "Поміч поруч — Пошук нянь", "Марке�
   </div>
   <div class="hero-visual">
     <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=750&fit=crop" alt="Няня з дитиною" width="600" height="750" data-cms="home.hero_image_alt" data-cms-attr="alt" data-cms-src="home.hero_image">
-    <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">500+ перевірених нянь</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">У 5 містах України</span></div></div>
+    <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">Перевірені няні</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">По містах України</span></div></div>
   </div>
 </div></section>
-<section style="padding:4rem 0" data-cms-section="home.benefits_section_visible"><div class="container grid-4" id="benefits"></div></section>
+<section style="padding:4rem 0" data-cms-section="home.benefits_section_visible"><div class="container">
+  <h2 class="section-title" style="text-align:center;margin-bottom:2rem" data-cms="home.benefits_title">Наші переваги</h2>
+  <div class="grid-4" id="benefits"></div>
+</div></section>
 <section style="padding:4rem 0;background:white" data-cms-section="home.steps_section_visible"><div class="container">
   <h2 class="section-title" style="text-align:center" data-cms="home.steps_title">Як це працює</h2>
   <p class="section-subtitle" style="text-align:center;margin:0 auto 2rem" data-cms="home.steps_subtitle">Чотири простих кроки</p>
@@ -170,11 +173,7 @@ page("index.html", "Поміч поруч — Пошук нянь", "Марке�
 </div></section>
 <section style="padding:3rem 0;background:white;text-align:center" data-cms-section="home.cities_section_visible"><div class="container">
   <h2 class="section-title" data-cms="home.cities_title">Няні у вашому місті</h2>
-  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.75rem;margin-top:1rem">
-    <a href="/city/kyiv.html" class="btn btn-secondary" data-cms="home.city_kyiv_label">Київ</a>
-    <a href="/city/lviv.html" class="btn btn-secondary" data-cms="home.city_lviv_label">Львів</a>
-    <a href="/city/dnipro.html" class="btn btn-secondary" data-cms="home.city_dnipro_label">Дніпро</a>
-  </div>
+  <div id="home-cities" style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.75rem;margin-top:1rem"></div>
 </div></section>
 <div class="sticky-cta"><a href="/nanny/" class="btn btn-primary btn-block" data-cms="home.sticky_cta_label">Знайти няню</a></div>
 """, init="""
@@ -190,14 +189,26 @@ page("nanny/index.html", "Каталог нянь — Поміч поруч", "�
   <p class="page-hero-subtitle" data-cms="catalog.catalog_subtitle">10 фільтрів: місто, район, вік, досвід, ставка, рейтинг та інше</p>
 </div></section>
 <div class="container" style="padding-bottom:3rem">
-  <button type="button" class="btn btn-secondary filters-mobile-toggle btn-block" id="filters-toggle" data-cms="catalog.catalog_filters_toggle">Показати фільтри</button>
-  <div class="card filters-mobile-panel" id="filters-mobile-panel">
-    <div class="filters-panel-body" id="filters-mobile"></div>
+  <button type="button" class="btn btn-secondary filters-mobile-toggle btn-block" id="filters-toggle" data-cms="catalog.catalog_filters_toggle" aria-expanded="false" aria-controls="filters-mobile-panel">Показати фільтри</button>
+  <div class="card filters-mobile-panel" id="filters-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="filters-mobile-title">
+    <div class="filters-mobile-sheet">
+      <div class="filters-panel-head filters-mobile-head">
+        <p class="filters-panel-title" data-cms="catalog.catalog_filters_title" id="filters-mobile-title">Фільтри</p>
+        <button type="button" class="filters-mobile-close" id="filters-mobile-close" aria-label="Закрити фільтри">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="filters-panel-body" id="filters-mobile"></div>
+      <div class="filters-panel-footer filters-mobile-footer">
+        <button type="button" class="btn btn-secondary" id="filters-reset-mobile">Скинути</button>
+        <button type="button" class="btn btn-primary" id="filters-apply-mobile">Застосувати</button>
+      </div>
+    </div>
   </div>
   <div class="catalog-layout">
     <aside class="filters-desktop">
       <div class="card filters-panel">
-        <div class="filters-panel-head"><h2 data-cms="catalog.catalog_filters_title">Фільтри</h2></div>
+        <div class="filters-panel-head"><h2 class="filters-panel-title" data-cms="catalog.catalog_filters_title">Фільтри</h2></div>
         <div class="filters-panel-body" id="filters-desktop"></div>
       </div>
     </aside>
@@ -215,7 +226,12 @@ page("nanny/profile.html", "Профіль няні — Поміч поруч", 
 """, init="PP.initProfile();")
 
 # City pages
-CITY_LOCATIVE = {"kyiv": ("Київ", "у Києві"), "lviv": ("Львів", "у Львові"), "dnipro": ("Дніпро", "у Дніпрі")}
+CITY_LOCATIVE = {
+    "kyiv": ("Київ", "у Києві"),
+    "lviv": ("Львів", "у Львові"),
+    "dnipro": ("Дніпро", "у Дніпрі"),
+    "kharkiv": ("Харків", "у Харкові"),
+}
 for slug, (name, locative) in CITY_LOCATIVE.items():
     page(f"city/{slug}.html", f"Няні {locative}", f"Перевірені няні {locative}", f"""
 <section class="page-hero"><div class="page-hero-bg"></div><div class="container page-hero-inner">
@@ -267,7 +283,7 @@ page("contacts.html", "Контакти — Поміч поруч", "Зв'яжі
           <div class="contact-body"><span class="contact-label">Графік</span><span class="contact-value">Пн–Пт, 9:00–18:00</span></div></li>
       </ul>
     </div>
-    <div class="contacts-map" aria-hidden="true"><span class="contacts-map-badge">Працюємо по всій Україні</span><p class="contacts-map-cities">Київ · Львів · Дніпро · Одеса · Харків</p></div>
+    <div class="contacts-map" aria-hidden="true"><span class="contacts-map-badge">Працюємо по всій Україні</span><p class="contacts-map-cities" id="contacts-map-cities">Міста з каталогу</p></div>
     <div class="contacts-quick"><a href="/faq.html" class="contacts-quick-link">Часті запитання</a><a href="/nanny/" class="contacts-quick-link">Каталог нянь</a></div>
   </aside>
   <div class="contacts-form-wrap">
@@ -325,8 +341,12 @@ page("login.html", "Вхід", "Вхід", f"""
     <button type="button" class="auth-oauth-btn" data-provider="apple"> Apple</button>
   </div>
   <div class="auth-divider">або email</div>
-  <form class="auth-form" id="login-form"><input class="field" type="email" placeholder="Email" required><input class="field" type="password" placeholder="Пароль" required>
-  <button type="submit" class="btn btn-primary btn-block">Увійти</button></form>
+  <p class="auth-error" id="login-error" role="alert" hidden></p>
+  <form class="auth-form" id="login-form">
+    <input class="field" type="email" placeholder="Email" autocomplete="email" required>
+    <input class="field" type="password" placeholder="Пароль" autocomplete="current-password" required>
+    <button type="submit" class="btn btn-primary btn-block">Увійти</button>
+  </form>
   <p class="auth-footer">Немає акаунту? <a href="/register.html">Зареєструватись</a> · <a href="/forgot-password.html">Забули пароль?</a></p>
 </div>{AUTH_TRUST}</div>
 """, init="PP.initAuth();")
@@ -389,19 +409,23 @@ page("reset-password.html", "Новий пароль", "Встановлення
 </div>{AUTH_TRUST}</div>
 """, init="PP.initAuth();")
 
-# Legal
-for slug, title, body in [
-    ("public-offer", "Публічна оферта", "<p>Публічна оферта платформи «Поміч поруч».</p><p>1 контакт — 50 грн · 5 контактів — 200 грн · Місто 7 днів — 500 грн.</p>"),
-    ("terms-of-service", "Умови використання", "<p>Ролі: гість (перегляд без реєстрації), батьки, помічники, адмін. Заборонено надавати неправдиві дані.</p>"),
-    ("privacy-policy", "Політика конфіденційності", "<p>GDPR та ЗУ про захист персональних даних. Документи нянь — лише для адміна.</p>"),
-    ("cookie-policy", "Політика cookies", "<p>Необхідні, аналітичні (GA4, Clarity), маркетингові (Meta Pixel).</p>"),
+# Legal — повний текст підвантажується з StaticPage (адмінка → Статичні сторінки)
+_LEGAL_FALLBACK = (
+    '<p class="legal-meta">Текст документа керується в адмінці (Статичні сторінки).</p>'
+    '<p class="legal-hint"><em>Якщо цей текст не замінився — перевірте API /content/pages/… '
+    "або опублікуйте відповідну StaticPage.</em></p>"
+)
+for slug, title in [
+    ("public-offer", "Публічна оферта"),
+    ("terms-of-service", "Умови використання"),
+    ("privacy-policy", "Політика конфіденційності"),
+    ("cookie-policy", "Політика cookies"),
 ]:
     page(f"{slug}.html", f"{title} — Поміч поруч", title, f"""
 <section class="page-hero page-hero-compact"><div class="page-hero-bg page-hero-bg--animated"></div><div class="container page-hero-inner"><h1 class="page-hero-title" data-static-title>{title}</h1></div></section>
 <div class="page-content-area">
-<div class="container page-content-inner">
-  <div class="card legal-content" data-static-body>{body}
-    <div class="page-empty-hint"><span class="page-empty-hint-icon">📄</span><span>Документ оновлюється відповідно до законодавства України та GDPR.</span></div>
+<div class="container page-content-inner page-content-inner--legal">
+  <div class="card legal-content" data-static-body>{_LEGAL_FALLBACK}
   </div>
   {PAGE_ASIDE}
 </div></div>

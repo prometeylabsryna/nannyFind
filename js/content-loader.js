@@ -26,15 +26,30 @@ PP.loadFAQ = async () => {
   }
 };
 
+PP.blogCoverAlt = (post) => {
+  const custom = String(post?.image_alt || "").trim();
+  if (custom) return custom;
+  const title = String(post?.title || "").trim();
+  return title ? `Ілюстрація до статті «${title}»` : "Ілюстрація до статті блогу";
+};
+
+PP.escapeAttr = (str) =>
+  String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 PP.renderBlogCards = (posts) =>
   posts
-    .map(
-      (p) =>
-        `<a href="${PP.ROUTES.blogPost(p.slug)}" class="card card-hover blog-card">
-            <img src="${p.image || ""}" alt="" loading="lazy" width="800" height="500">
+    .map((p) => {
+      const img = PP.resolveMediaUrl?.(p.image) || p.image || "";
+      const alt = PP.escapeAttr(PP.blogCoverAlt(p));
+      return `<a href="${PP.ROUTES.blogPost(p.slug)}" class="card card-hover blog-card">
+            <img src="${img}" alt="${alt}" loading="lazy" width="800" height="500">
             <div class="blog-card-body"><span class="badge badge-green">${p.category || ""}</span>
-            <h3>${p.title}</h3><p>${p.excerpt || ""}</p></div></a>`
-    )
+            <h3>${p.title}</h3><div class="blog-card-excerpt">${p.excerpt || ""}</div></div></a>`;
+    })
     .join("");
 
 PP.loadBlog = async () => {
@@ -75,12 +90,16 @@ PP.loadBlogArticle = async () => {
   }
   if (titleEl) titleEl.textContent = post.title;
   document.title = `${post.title} — Блог`;
-  const img = post.image
-    ? `<img src="${post.image}" alt="" class="blog-article-cover" width="800" height="450" loading="lazy">`
+  const cover = PP.resolveMediaUrl?.(post.image) || post.image || "";
+  const alt = PP.escapeAttr(PP.blogCoverAlt(post));
+  const img = cover
+    ? `<img src="${cover}" alt="${alt}" class="blog-article-cover" width="800" height="450" loading="lazy">`
     : "";
-  const body = Array.isArray(post.content)
-    ? post.content.map((c) => `<p class="blog-article-p">${c}</p>`).join("")
-    : post.body_html || post.body || "";
+  const body = typeof post.content === "string"
+    ? post.content
+    : Array.isArray(post.content)
+      ? post.content.map((c) => `<p class="blog-article-p">${c}</p>`).join("")
+      : post.body_html || post.body || "";
   root.innerHTML = `${img}<div class="blog-article-content">${body}</div>`;
 };
 
@@ -99,12 +118,19 @@ PP.loadHomeNannies = async () => {
 
 PP.loadCities = async () => {
   try {
-    const cities = await PP.fetchCities();
+    const cities = await PP.fetchCities({ withNannies: true });
     PP.CITIES = cities.map((c) => c.name);
     PP.DISTRICTS = {};
     cities.forEach((c) => {
       PP.DISTRICTS[c.name] = (c.districts || []).map((d) => d.name);
     });
+    if (!PP.CATALOG_COVERAGE) {
+      PP.CATALOG_COVERAGE = {
+        cities: cities.map((c) => ({ name: c.name, slug: c.slug })),
+        cities_count: cities.length,
+      };
+    }
+    PP.applyCatalogCoverage?.();
   } catch {
     /* keep mock */
   }

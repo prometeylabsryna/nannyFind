@@ -1,11 +1,13 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from apps.core.admin_utils import TinyMCEAdminMixin
 from apps.payments.models import Payment, PricingPlan, Subscription
 
 
 @admin.register(PricingPlan)
-class PricingPlanAdmin(ModelAdmin):
+class PricingPlanAdmin(TinyMCEAdminMixin, ModelAdmin):
+    tinymce_fields = ("description",)
     list_display = ("code", "title", "price_uah", "plan_type", "is_active", "is_featured")
     list_editable = ("is_active", "is_featured")
     search_fields = ("code", "title")

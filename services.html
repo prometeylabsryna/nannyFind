@@ -79,7 +79,7 @@
   var pricingGrid=document.getElementById('pricing-grid');
   var renderPricing=function(plans){
     pricingGrid.innerHTML=plans.map(function(p){
-      return '<div class="card pricing-card'+(p.featured?' featured':'')+'"><h3>'+p.title+'</h3><div class="pricing-price">'+PP.formatPrice(p.price)+'</div><p style="font-size:0.875rem;color:var(--text-muted);flex:1">'+(p.desc||'')+'</p><a href="/cabinet/parent/payments" class="btn btn-primary btn-block">Обрати</a></div>';
+      return '<div class="card pricing-card'+(p.featured?' featured':'')+'"><h3>'+p.title+'</h3><div class="pricing-price">'+PP.formatPrice(p.price)+'</div><p class="pricing-desc">'+(p.desc||'')+'</p><a href="/cabinet/parent/payments" class="btn btn-primary btn-block">Обрати</a></div>';
     }).join('');
   };
   try {

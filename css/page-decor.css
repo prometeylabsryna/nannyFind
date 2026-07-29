@@ -10,6 +10,11 @@
     linear-gradient(180deg, var(--bg) 0%, rgb(248 245 240) 50%, rgb(149 184 162 / 0.1) 100%);
 }
 
+/* Пости блогу: висота секції = контент, без порожнього скролу */
+body:has(#blog-article) .page-backdrop {
+  min-height: auto;
+}
+
 .page-backdrop > .page-decor {
   position: absolute;
   inset: 0;
@@ -230,10 +235,28 @@
   max-width: 52rem;
 }
 
+/* Юридичні документи — ширша колонка тексту, менше вертикального розтягування */
+.page-content-inner--legal {
+  max-width: 72rem;
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   .page-content-inner {
     grid-template-columns: 1fr minmax(14rem, 16rem);
     align-items: start;
+  }
+
+  .page-content-inner--legal {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 15rem);
+    gap: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-content-inner--legal {
+    max-width: 76rem;
+    gap: 2rem;
   }
 }
 

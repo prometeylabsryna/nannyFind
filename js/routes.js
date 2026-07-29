@@ -52,6 +52,8 @@ PP.CITY_LOCATIVE = {
   Київ: "у Києві",
   Львів: "у Львові",
   Дніпро: "у Дніпрі",
+  Харків: "у Харкові",
+  Одеса: "в Одесі",
 };
 
 PP.cityLocative = (name) => PP.CITY_LOCATIVE[name] || `у ${name}`;

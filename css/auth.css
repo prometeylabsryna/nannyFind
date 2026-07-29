@@ -29,8 +29,16 @@
   color: var(--danger, #b42318);
   font-size: 0.875rem;
   text-align: center;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.875rem;
   line-height: 1.5;
+  background: rgb(180 35 24 / 0.08);
+  border: 1px solid rgb(180 35 24 / 0.22);
+  border-radius: var(--radius);
+}
+
+.auth-error[hidden] {
+  display: none;
 }
 
 .auth-role-select {
@@ -116,17 +124,46 @@
 
 .cookie-banner {
   position: fixed;
+  top: auto;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
   z-index: 100;
+  width: 100%;
+  max-width: 100vw;
+  max-height: min(90dvh, 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 1rem;
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  transform: translateY(100%);
-  transition: transform 0.35s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 0.75rem, 0);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+  pointer-events: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
-.cookie-banner.visible { transform: translateY(0); }
+.cookie-banner.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.cookie-banner[hidden] {
+  display: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .cookie-banner {
+    max-height: min(90svh, 100%);
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
 
 .cookie-inner {
   max-width: 48rem;
@@ -161,6 +198,22 @@
 
 .legal-content { padding: 2rem; }
 
+.legal-meta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.legal-hint {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--border, #d6dde6);
+  background: rgba(247, 249, 251, 0.9);
+}
+
 .legal-section { margin-bottom: 1.75rem; }
 
 .legal-section h2 {
@@ -180,6 +233,24 @@
 .legal-section ul {
   padding-left: 1.25rem;
   list-style: disc;
+}
+
+@media (max-width: 767px) {
+  .legal-content { padding: 1.25rem; }
+
+  .legal-section h2 {
+    font-size: 1.0625rem;
+  }
+
+  .legal-hint {
+    padding: 0.625rem 0.75rem;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .legal-content {
+    -webkit-text-size-adjust: 100%;
+  }
 }
 
 #faq-list {

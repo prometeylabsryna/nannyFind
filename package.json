@@ -10,6 +10,7 @@
     "dev:stop": "bash scripts/start_dev.sh stop",
     "dev:status": "bash scripts/start_dev.sh status",
     "dev:install": "bash scripts/install_dev_service.sh",
-    "generate": "python3 scripts/generate_public.py && python3 scripts/generate_cabinet_admin.py"
+    "generate": "python3 scripts/generate_public.py && python3 scripts/generate_cabinet_admin.py",
+    "smoke:cookie": "python3 scripts/smoke_cookie_banner.py"
   }
 }

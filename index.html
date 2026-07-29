@@ -31,12 +31,11 @@
 <section class="hero" data-cms-section="home.hero_section_visible"><div class="hero-bg"></div><div class="container hero-grid">
   <div>
     <h1 class="hero-title" data-cms="home.hero_title_html" data-cms-html="1">Надійна <em>няня поруч</em> — для вашої родини</h1>
-    <p class="hero-subtitle" data-cms="home.hero_subtitle">Знайдіть перевіреного помічника за лічені хвилини. Безпечний пошук, прозорі профілі та зручний чат.</p>
+    <div class="hero-subtitle" data-cms="home.hero_subtitle">Знайдіть перевіреного помічника за лічені хвилини. Безпечний пошук, прозорі профілі та зручний чат.</div>
     <form class="hero-search" action="/nanny/" method="get">
       <div class="hero-search-grid">
         <div><label class="label" data-cms="home.search_city_label">🏙 Місто</label>
-          <select class="field" name="city"><option value="">Оберіть місто</option>
-            <option>Київ</option><option>Львів</option><option>Дніпро</option></select></div>
+          <select class="field" name="city"><option value="">Оберіть місто</option></select></div>
         <div><label class="label" data-cms="home.search_date_label">📅 Дата</label><input type="date" class="field" name="date"></div>
         <div><label class="label" data-cms="home.search_format_label">Формат</label>
           <select class="field" name="format"><option value="hourly">Погодинно</option><option value="daily">На день</option><option value="live-in">Проживання</option></select></div>
@@ -46,10 +45,13 @@
   </div>
   <div class="hero-visual">
     <img src="/images/hero_nanny.png" alt="Няня з дитиною" width="600" height="750" data-cms="home.hero_image_alt" data-cms-attr="alt" data-cms-src="home.hero_image">
-    <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">500+ перевірених нянь</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">У 5 містах України</span></div></div>
+    <div class="hero-trust"><div class="hero-trust-icon" data-cms="home.hero_trust_icon">🛡</div><div><strong style="font-size:0.875rem" data-cms="home.hero_trust_count">Перевірені няні</strong><br><span style="font-size:0.75rem;color:var(--text-muted)" data-cms="home.hero_trust_cities">По містах України</span></div></div>
   </div>
 </div></section>
-<section style="padding:4rem 0" data-cms-section="home.benefits_section_visible"><div class="container grid-4" id="benefits"></div></section>
+<section style="padding:4rem 0" data-cms-section="home.benefits_section_visible"><div class="container">
+  <h2 class="section-title" style="text-align:center;margin-bottom:2rem" data-cms="home.benefits_title">Наші переваги</h2>
+  <div class="grid-4" id="benefits"></div>
+</div></section>
 <section style="padding:4rem 0;background:white" data-cms-section="home.steps_section_visible"><div class="container">
   <h2 class="section-title" style="text-align:center" data-cms="home.steps_title">Як це працює</h2>
   <p class="section-subtitle" style="text-align:center;margin:0 auto 2rem" data-cms="home.steps_subtitle">Чотири простих кроки</p>
@@ -64,16 +66,12 @@
 </div></section>
 <section style="padding:3rem 0;background:white;text-align:center" data-cms-section="home.cities_section_visible"><div class="container">
   <h2 class="section-title" data-cms="home.cities_title">Няні у вашому місті</h2>
-  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.75rem;margin-top:1rem">
-    <a href="/city/kyiv/" class="btn btn-secondary" data-cms="home.city_kyiv_label">Київ</a>
-    <a href="/city/lviv/" class="btn btn-secondary" data-cms="home.city_lviv_label">Львів</a>
-    <a href="/city/dnipro/" class="btn btn-secondary" data-cms="home.city_dnipro_label">Дніпро</a>
-  </div>
+  <div id="home-cities" style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.75rem;margin-top:1rem"></div>
 </div></section>
 <div class="sticky-cta"><a href="/nanny/" class="btn btn-primary btn-block" data-cms="home.sticky_cta_label">Знайти няню</a></div>
 </main>
   <div id="site-footer" hx-get="/partials/footer.html" hx-trigger="load" hx-swap="innerHTML"></div>
-  <div hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
+  <div id="cookie-banner-wrap" hx-get="/partials/cookie.html" hx-trigger="load" hx-swap="innerHTML"></div>
   <script src="/js/routes.js"></script>
   <script src="/js/mock-data.js"></script>
   <script src="/js/api.js"></script>

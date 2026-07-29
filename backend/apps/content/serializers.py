@@ -5,12 +5,24 @@ from apps.content.models import BlogPost, FAQItem, StaticPage
 
 class BlogPostSerializer(serializers.ModelSerializer):
     date = serializers.DateField(source="published_at", format="%Y-%m-%d")
+    image = serializers.SerializerMethodField()
+    image_alt = serializers.CharField(source="display_image_alt", read_only=True)
 
     class Meta:
         model = BlogPost
-        fields = ("slug", "title", "excerpt", "date", "category", "image", "content")
+        fields = (
+            "slug",
+            "title",
+            "excerpt",
+            "date",
+            "category",
+            "image",
+            "image_alt",
+            "content",
+        )
 
-    image = serializers.URLField(source="image_url")
+    def get_image(self, obj):
+        return obj.display_image or ""
 
 
 class FAQSerializer(serializers.ModelSerializer):

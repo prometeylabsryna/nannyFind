@@ -1,7 +1,7 @@
 /* Mock data — Поміч поруч MVP */
 window.PP = window.PP || {};
 
-PP.CITIES = ["Київ", "Львів", "Дніпро", "Одеса", "Харків"];
+PP.CITIES = ["Київ", "Львів", "Дніпро", "Одеса"];
 
 PP.DISTRICTS = {
   "Київ": ["Печерський", "Оболонський", "Подільський", "Шевченківський", "Солом'янський"],
@@ -48,7 +48,7 @@ PP.NANNIES = [
   {
     id: "1", name: "Олена Кovalenko", age: 32, city: "Київ", district: "Печерський",
     photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.9, reviewCount: 47, hourlyRate: 350, experienceYears: 8,
+    rating: 0, reviewCount: 0, hourlyRate: 350, experienceYears: 8,
     description: "Досвідчена няня з педагогічною освітою. Люблю працювати з дітьми від 1 року.",
     certificates: ["Педагогічна освіта", "Курс першої допомоги"],
     languages: ["Українська", "Англійська"], hasCar: true, medicalEducation: false,
@@ -57,7 +57,7 @@ PP.NANNIES = [
   {
     id: "2", name: "Марія Петренко", age: 28, city: "Київ", district: "Оболонський",
     photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.7, reviewCount: 32, hourlyRate: 300, experienceYears: 5,
+    rating: 0, reviewCount: 0, hourlyRate: 300, experienceYears: 5,
     description: "Енергійна та відповідальна. Спеціалізуюсь на дошкільнятах.",
     certificates: ["Медична сестра", "Montessori"],
     languages: ["Українська"], hasCar: false, medicalEducation: true,
@@ -66,7 +66,7 @@ PP.NANNIES = [
   {
     id: "3", name: "Анна Шевченко", age: 35, city: "Львів", district: "Галицький",
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=400&fit=crop&crop=faces",
-    rating: 5.0, reviewCount: 61, hourlyRate: 400, experienceYears: 12,
+    rating: 0, reviewCount: 0, hourlyRate: 400, experienceYears: 12,
     description: "12 років досвіду. Працювала з дітьми з особливими потребами.",
     certificates: ["Дефектолог", "Перша допомога", "CPR"],
     languages: ["Українська", "Польська"], hasCar: true, medicalEducation: true,
@@ -75,7 +75,7 @@ PP.NANNIES = [
   {
     id: "4", name: "Ірина Мельник", age: 26, city: "Дніпро", district: "Центральний",
     photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.5, reviewCount: 18, hourlyRate: 250, experienceYears: 3,
+    rating: 0, reviewCount: 0, hourlyRate: 250, experienceYears: 3,
     description: "Молода, але відповідальна. Активні ігри та розвиваючі заняття.",
     certificates: ["Курс няні", "Перша допомога"],
     languages: ["Українська", "Англійська"], hasCar: false, medicalEducation: false,
@@ -84,7 +84,7 @@ PP.NANNIES = [
   {
     id: "5", name: "Наталія Бойко", age: 30, city: "Дніпро", district: "Самарський",
     photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.8, reviewCount: 24, hourlyRate: 280, experienceYears: 6,
+    rating: 0, reviewCount: 0, hourlyRate: 280, experienceYears: 6,
     description: "Догляд за дітьми від 6 місяців. Спокійна та уважна.",
     certificates: ["Медична освіта", "Курс няні"],
     languages: ["Українська"], hasCar: true, medicalEducation: true,
@@ -93,7 +93,7 @@ PP.NANNIES = [
   {
     id: "6", name: "Юлія Савченко", age: 27, city: "Львів", district: "Залізничний",
     photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.6, reviewCount: 15, hourlyRate: 320, experienceYears: 4,
+    rating: 0, reviewCount: 0, hourlyRate: 320, experienceYears: 4,
     description: "Творчі заняття, музика та розвиток мовлення.",
     certificates: ["Montessori", "Музична освіта"],
     languages: ["Українська", "Англійська", "Польська"], hasCar: false, medicalEducation: false,
@@ -102,7 +102,7 @@ PP.NANNIES = [
   {
     id: "7", name: "Софія Кравець", age: 31, city: "Одеса", district: "Приморський",
     photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=faces",
-    rating: 4.9, reviewCount: 29, hourlyRate: 340, experienceYears: 7,
+    rating: 0, reviewCount: 0, hourlyRate: 340, experienceYears: 7,
     description: "Досвід проживання з сім'єю. Готування дитячого меню.",
     certificates: ["Курс няні", "Кулінарія для дітей"],
     languages: ["Українська", "Російська"], hasCar: true, medicalEducation: false,
@@ -122,6 +122,19 @@ PP.REVIEWS = {
   "7": [{ author: "Ірина Д.", rating: 5, text: "Софія готує смачні страви для дітей.", date: "2026-06-05" }],
 };
 
+(function syncMockNannyRatings() {
+  PP.NANNIES.forEach((n) => {
+    const list = PP.REVIEWS[n.id] || [];
+    n.reviewCount = list.length;
+    if (!list.length) {
+      n.rating = 0;
+      return;
+    }
+    const sum = list.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+    n.rating = Math.round((sum / list.length) * 100) / 100;
+  });
+})();
+
 PP.FAQ = [
   { q: "Як працює платформа?", a: "Реєструєтесь, шукаєте няню, оформлюєте підписку та домовляєтесь через чат." },
   { q: "Чи перевіряються няні?", a: "Так, кожен профіль проходить модерацію документів адміністратором." },
@@ -132,15 +145,17 @@ PP.FAQ = [
 PP.BLOG = [
   {
     slug: "yak-obraty-nyanyu", title: "Як обрати надійну няню: 7 порад",
-    excerpt: "Практичний гайд для батьків", date: "2026-06-01", category: "Поради",
+    excerpt: "<p>Практичний гайд для батьків</p>", date: "2026-06-01", category: "Поради",
     image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=800&h=500&fit=crop",
-    content: ["Перевіряйте рейтинг та відгуки.", "Звертайте увагу на сертифікати.", "Домовтесь про формат догляду заздалегідь."],
+    image_alt: "Ілюстрація до статті «Як обрати надійну няню: 7 порад»",
+    content: "<p>Перевіряйте рейтинг та відгуки.</p><p>Звертайте увагу на сертифікати.</p><p>Домовтесь про формат догляду заздалегідь.</p>",
   },
   {
     slug: "bezpeka-ditey", title: "Безпека дітей перед наймом",
-    excerpt: "Чек-лист документів", date: "2026-05-28", category: "Безпека",
+    excerpt: "<p>Чек-лист документів</p>", date: "2026-05-28", category: "Безпека",
     image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=500&fit=crop",
-    content: ["Модерація профілів адміном.", "Перевірка паспорта та ІПН.", "Співбесіда очно або онлайн."],
+    image_alt: "Ілюстрація до статті «Безпека дітей перед наймом»",
+    content: "<p>Модерація профілів адміном.</p><p>Перевірка паспорта та ІПН.</p><p>Співбесіда очно або онлайн.</p>",
   },
 ];
 

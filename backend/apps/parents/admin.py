@@ -1,11 +1,13 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from apps.core.admin_utils import TinyMCEAdminMixin
 from apps.parents.models import ContactUnlock, Favorite, ParentProfile
 
 
 @admin.register(ParentProfile)
-class ParentProfileAdmin(ModelAdmin):
+class ParentProfileAdmin(TinyMCEAdminMixin, ModelAdmin):
+    tinymce_fields = ("special_needs",)
     list_display = ("last_name", "first_name", "city", "user")
     search_fields = ("first_name", "last_name", "user__email", "city")
     autocomplete_fields = ("user",)

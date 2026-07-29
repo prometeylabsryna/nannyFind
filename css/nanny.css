@@ -380,6 +380,22 @@
   font-weight: 500;
 }
 
+@media (max-width: 1023px) {
+  .nanny-card-actions .btn {
+    min-height: var(--touch);
+  }
+
+  .nanny-card-fav,
+  .nanny-card--compact .nanny-card-fav {
+    top: 1rem;
+    right: 1rem;
+    width: var(--touch);
+    height: var(--touch);
+    min-width: var(--touch);
+    min-height: var(--touch);
+  }
+}
+
 /* Компактні картки на головній */
 .nanny-card--compact .nanny-card-calendar {
   display: none;
@@ -628,6 +644,11 @@
   color: var(--text-light);
 }
 
+.profile-sidebar-actions .profile-phone-hint--ok {
+  color: var(--calm-dark, #6b9a7a);
+  font-weight: 500;
+}
+
 .profile-sidebar-actions .profile-phone-hint--error {
   display: flex;
   flex-direction: column;
@@ -712,7 +733,8 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    /* Нижній відступ під sticky CTA — у globals (main + --sticky-cta-h) */
+    padding-bottom: 1.5rem;
   }
 
   .profile-layout > * {
@@ -725,6 +747,17 @@
     max-width: 100%;
   }
 
+  /* Фото не витісняє бейджі під фіксовану CTA у першому в’юпорті */
+  .profile-hero-photo {
+    max-height: calc(
+      100dvh
+      - var(--header-h)
+      - env(safe-area-inset-top, 0px)
+      - var(--sticky-cta-h, 0px)
+      - 14rem
+    );
+  }
+
   .profile-hero-body {
     display: flex;
     flex-direction: column;
@@ -735,6 +768,10 @@
     padding-right: max(1rem, env(safe-area-inset-right, 0px));
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+  }
+
+  .profile-hero-badges {
+    scroll-margin-bottom: calc(var(--sticky-cta-h, 0px) + 0.75rem);
   }
 
   .profile-hero-head {
@@ -827,6 +864,7 @@
     text-align: center;
   }
 
+  .profile-phone-hint--ok,
   .profile-phone-hint--error {
     text-align: center;
   }
@@ -878,9 +916,11 @@
   padding: 0.875rem 1rem 0.5rem;
 }
 
-.filters-panel-head h2 {
+.filters-panel-head .filters-panel-title {
   font-size: 1rem;
-  margin-bottom: 0;
+  font-weight: 600;
+  margin: 0;
+  color: inherit;
 }
 
 .filters-panel-body {
@@ -1010,8 +1050,9 @@
   border-bottom: 1px solid var(--border);
 }
 
-.filters-mobile-head h2 {
+.filters-mobile-head .filters-panel-title {
   font-size: 1.0625rem;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -1019,9 +1060,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  margin: -0.25rem -0.375rem -0.25rem 0;
+  width: var(--touch);
+  height: var(--touch);
+  min-width: var(--touch);
+  min-height: var(--touch);
+  margin: -0.375rem -0.5rem -0.375rem 0;
   padding: 0;
   border: none;
   border-radius: 0.5rem;
@@ -1054,6 +1097,11 @@ body.filters-mobile-open {
   touch-action: none;
 }
 
+/* overflow:hidden на .page-backdrop кліпає fixed-оверлей і зриває внутрішній скрол */
+body.filters-mobile-open .page-backdrop {
+  overflow: visible;
+}
+
 @media (min-width: 768px) {
   .filters-mobile-toggle {
     display: none;
@@ -1077,15 +1125,23 @@ body.filters-mobile-open {
     display: flex;
     flex-direction: column;
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 80;
     width: auto;
     max-width: none;
-    max-height: none;
+    height: 100%;
+    height: 100dvh;
+    max-height: 100%;
+    max-height: 100dvh;
     margin: 0;
     border-radius: 0;
     border: none;
     box-shadow: none;
+    overflow: hidden;
+    box-sizing: border-box;
     background: rgb(247 246 243 / 0.72);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -1099,8 +1155,9 @@ body.filters-mobile-open {
   .filters-mobile-sheet {
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;
+    flex: 1 1 0%;
     min-height: 0;
+    height: 100%;
     max-height: 100%;
     border-radius: 1rem;
     background: var(--white);
@@ -1108,13 +1165,18 @@ body.filters-mobile-open {
     overflow: hidden;
   }
 
+  .filters-mobile-panel.open .filters-mobile-head {
+    flex-shrink: 0;
+  }
+
   .filters-mobile-panel.open .filters-panel-body {
-    flex: 1 1 auto;
+    flex: 1 1 0%;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    touch-action: pan-y;
     padding: 0.75rem 1rem 1rem;
   }
 
@@ -1151,13 +1213,13 @@ body.filters-mobile-open {
   .filters-mobile-panel .filter-params-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.625rem 0.75rem;
+    gap: 0.75rem 0.875rem;
     margin-bottom: 0.25rem;
   }
 
   .filters-mobile-panel .filter-params-grid .filter-group {
     margin-bottom: 0;
-    padding: 0.5rem 0.625rem 0.375rem;
+    padding: 0.5rem 0.625rem 0.5rem;
     border-radius: 0.75rem;
     background: rgb(149 184 162 / 0.08);
   }
@@ -1179,9 +1241,9 @@ body.filters-mobile-open {
   }
 
   .filters-mobile-panel .filter-range {
-    height: 1.625rem;
-    --thumb-size: 16px;
-    --track-h: 3px;
+    height: var(--touch);
+    --thumb-size: 28px;
+    --track-h: 4px;
   }
 
   .filters-mobile-panel .filter-group {
@@ -1198,7 +1260,7 @@ body.filters-mobile-open {
     justify-content: center;
     text-align: center;
     padding: 0.4375rem 0.5rem;
-    min-height: 2.25rem;
+    min-height: var(--touch);
     font-size: 0.75rem;
   }
 
@@ -1709,7 +1771,7 @@ body.filters-mobile-open {
   align-items: flex-end;
   gap: 0.125rem;
   flex-shrink: 0;
-  padding-right: 2rem;
+  padding-right: calc(var(--touch) + 0.5rem);
 }
 
 .nanny-list-rating {
@@ -1736,15 +1798,17 @@ body.filters-mobile-open {
 .nanny-list-item .nanny-card-fav {
   position: absolute;
   top: 50%;
-  right: 0.75rem;
+  right: 1rem;
   transform: translateY(-50%);
-  width: 2.25rem;
-  height: 2.25rem;
-  min-width: 2.25rem;
-  min-height: 2.25rem;
+  width: var(--touch);
+  height: var(--touch);
+  min-width: var(--touch);
+  min-height: var(--touch);
   background: transparent;
   box-shadow: none;
   color: #f43f6e;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .nanny-list-item .nanny-card-fav .fav-heart {
@@ -1762,6 +1826,20 @@ body.filters-mobile-open {
   transform: translateY(-50%) scale(0.92);
 }
 
+@media (min-width: 1024px) {
+  .nanny-list-aside {
+    padding-right: 2rem;
+  }
+
+  .nanny-list-item .nanny-card-fav {
+    right: 0.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+  }
+}
+
 @media (max-width: 479px) {
   .nanny-list-link {
     gap: 0.625rem;
@@ -1774,7 +1852,7 @@ body.filters-mobile-open {
   }
 
   .nanny-list-aside {
-    padding-right: 1.75rem;
+    padding-right: calc(var(--touch) + 0.375rem);
   }
 
   .nanny-list-revcount,

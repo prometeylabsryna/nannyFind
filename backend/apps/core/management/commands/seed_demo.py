@@ -8,6 +8,7 @@ from apps.content.models import BlogPost, FAQItem
 from apps.core.models import SiteSettings
 from apps.geo.models import City, District
 from apps.nannies.models import AvailabilitySlot, NannyProfile
+from apps.reviews.signals import refresh_all_nanny_ratings
 from apps.payments.models import PricingPlan
 
 User = get_user_model()
@@ -28,8 +29,6 @@ NANNIES = [
         "city": "Київ",
         "district": "Печерський",
         "photo_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.9,
-        "reviews": 47,
         "hourly": 350,
         "exp": 8,
         "age": 32,
@@ -47,8 +46,6 @@ NANNIES = [
         "city": "Київ",
         "district": "Оболонський",
         "photo_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.7,
-        "reviews": 32,
         "hourly": 300,
         "exp": 5,
         "age": 28,
@@ -66,8 +63,6 @@ NANNIES = [
         "city": "Львів",
         "district": "Галицький",
         "photo_url": "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=400&fit=crop&crop=faces",
-        "rating": 5.0,
-        "reviews": 61,
         "hourly": 400,
         "exp": 12,
         "age": 35,
@@ -85,8 +80,6 @@ NANNIES = [
         "city": "Дніпро",
         "district": "Центральний",
         "photo_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.5,
-        "reviews": 18,
         "hourly": 250,
         "exp": 3,
         "age": 26,
@@ -104,8 +97,6 @@ NANNIES = [
         "city": "Дніпро",
         "district": "Самарський",
         "photo_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.8,
-        "reviews": 24,
         "hourly": 280,
         "exp": 6,
         "age": 30,
@@ -123,8 +114,6 @@ NANNIES = [
         "city": "Львів",
         "district": "Залізничний",
         "photo_url": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.6,
-        "reviews": 15,
         "hourly": 320,
         "exp": 4,
         "age": 27,
@@ -142,8 +131,6 @@ NANNIES = [
         "city": "Одеса",
         "district": "Приморський",
         "photo_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=faces",
-        "rating": 4.9,
-        "reviews": 29,
         "hourly": 340,
         "exp": 7,
         "age": 31,
@@ -167,6 +154,7 @@ class Command(BaseCommand):
         self._seed_blog()
         self._seed_site_settings()
         self._seed_nannies()
+        refresh_all_nanny_ratings()
         self._seed_admin()
         self.stdout.write(self.style.SUCCESS("Demo data seeded."))
 
@@ -222,11 +210,12 @@ class Command(BaseCommand):
                 "excerpt": "Практичний гайд для батьків",
                 "category": "Поради",
                 "image_url": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=800&h=500&fit=crop",
-                "content": [
-                    "Перевіряйте рейтинг та відгуки.",
-                    "Звертайте увагу на сертифікати.",
-                    "Домовтесь про формат догляду заздалегідь.",
-                ],
+                "image_alt": "Ілюстрація до статті «Як обрати надійну няню: 7 порад»",
+                "content": (
+                    "<p>Перевіряйте рейтинг та відгуки.</p>"
+                    "<p>Звертайте увагу на сертифікати.</p>"
+                    "<p>Домовтесь про формат догляду заздалегідь.</p>"
+                ),
                 "is_published": True,
                 "published_at": date(2026, 6, 1),
             },
@@ -238,11 +227,12 @@ class Command(BaseCommand):
                 "excerpt": "Чек-лист документів",
                 "category": "Безпека",
                 "image_url": "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=500&fit=crop",
-                "content": [
-                    "Модерація профілів адміном.",
-                    "Перевірка паспорта та ІПН.",
-                    "Співбесіда очно або онлайн.",
-                ],
+                "image_alt": "Ілюстрація до статті «Безпека дітей перед наймом»",
+                "content": (
+                    "<p>Модерація профілів адміном.</p>"
+                    "<p>Перевірка паспорта та ІПН.</p>"
+                    "<p>Співбесіда очно або онлайн.</p>"
+                ),
                 "is_published": True,
                 "published_at": date(2026, 5, 28),
             },
@@ -298,8 +288,8 @@ class Command(BaseCommand):
                     "first_aid_course": item["first_aid"],
                     "is_verified": True,
                     "moderation_status": NannyProfile.ModerationStatus.APPROVED,
-                    "rating_avg": item["rating"],
-                    "review_count": item["reviews"],
+                    "rating_avg": 0,
+                    "review_count": 0,
                 },
             )
             profile.availability.all().delete()

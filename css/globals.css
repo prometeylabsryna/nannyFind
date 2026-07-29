@@ -28,6 +28,17 @@
   --brand-hand: #95b8a2;
   --header-h: 4rem;
   --touch: 44px;
+  /* Вимірюється в JS (PP.syncStickyCtaHeight); CSS-fallback нижче для mobile */
+  --sticky-cta-h: 0px;
+}
+
+/* WCAG AA ≥4.5:1 — другорядний текст на /, /nanny/ і в картках нянь */
+body:has(.hero),
+body:has(.catalog-layout),
+body:has(#profile-root),
+.nanny-card,
+.nanny-list-item {
+  --text-light: #7a7268;
 }
 
 .brand-en {
@@ -429,6 +440,16 @@ select.field:hover:not(:focus) {
   padding: clamp(1.5rem, 4vw, 2.5rem) 0;
 }
 
+@media (max-width: 767px) {
+  body:has(#profile-root) .page-hero-compact {
+    padding: 0.75rem 0 0.5rem;
+  }
+
+  body:has(#profile-root) .page-hero-compact .breadcrumbs {
+    margin-bottom: 0;
+  }
+}
+
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -440,6 +461,22 @@ select.field:hover:not(:focus) {
 
 .breadcrumbs a:hover { color: var(--calm-dark); }
 .breadcrumbs span { color: var(--text-muted); font-weight: 500; }
+
+@media (max-width: 1023px) {
+  .breadcrumbs {
+    align-items: center;
+    gap: 0.25rem 0.375rem;
+  }
+
+  .breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch);
+    padding-inline: 0.25rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
 
 /* Grid helpers */
 .grid-2 { display: grid; gap: 1.5rem; }
@@ -465,14 +502,55 @@ select.field:hover:not(:focus) {
   right: 0;
   z-index: 40;
   padding: 0.75rem 1rem;
-  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: rgb(255 255 255 / 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
+  transition: transform 0.28s ease, opacity 0.28s ease, visibility 0.28s ease;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.sticky-cta.sticky-cta--near-footer {
+  transform: translate3d(0, 100%, 0);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky-cta {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Fallback до вимірювання JS: touch + vertical padding панелі + safe-area */
+  :root:has(.sticky-cta) {
+    --sticky-cta-h: calc(var(--touch) + 1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  :root:has(body.cookie-consent-open) {
+    --sticky-cta-h: 0px;
+  }
+
+  body:has(.sticky-cta) main {
+    padding-bottom: var(--sticky-cta-h);
+  }
+
+  html {
+    scroll-padding-bottom: var(--sticky-cta-h);
+  }
 }
 
 @media (min-width: 768px) { .sticky-cta { display: none; } }
+
+/* Cookie consent open — hide sticky CTA so it does not cover controls */
+body.cookie-consent-open .sticky-cta {
+  display: none;
+  pointer-events: none;
+}
 
 .hidden { display: none; }
 .sr-only {

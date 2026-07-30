@@ -3,6 +3,7 @@ import logging
 import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -113,7 +114,9 @@ def verify_oauth_token(provider: str, access_token: str = "", id_token: str = ""
 
 def get_or_create_oauth_user(provider: str, profile: dict, role: str) -> User:
     uid = profile["uid"]
-    email = profile["email"]
+    email = (profile.get("email") or "").strip().lower()
+    if not uid or not email:
+        raise OAuthVerificationError("Google не повернув email. Дозвольте доступ до email і спробуйте знову.")
     user = User.objects.filter(oauth_provider=provider, oauth_uid=uid).first()
     if user:
         return user
@@ -126,10 +129,17 @@ def get_or_create_oauth_user(provider: str, profile: dict, role: str) -> User:
         user.save(update_fields=["oauth_provider", "oauth_uid", "status"])
         return user
 
+    base_username = (email.split("@")[0] or f"{provider}_{uid}")[:140]
+    username = base_username
+    suffix = 1
+    while User.objects.filter(username=username).exists():
+        username = f"{base_username}_{suffix}"[:150]
+        suffix += 1
+
     user = User.objects.create_user(
-        username=email.split("@")[0][:150],
+        username=username,
         email=email,
-        password=User.objects.make_random_password(length=32),
+        password=get_random_string(32),
         role=role,
         status=User.Status.ACTIVE,
         first_name=profile.get("first_name", ""),

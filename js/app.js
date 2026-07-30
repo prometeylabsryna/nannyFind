@@ -205,10 +205,58 @@ PP.initFooterAccordion = () => {
   });
 };
 
+PP.openMobileMenu = () => {
+  const menu = document.getElementById("mobile-menu");
+  if (!menu) return;
+  menu.classList.add("open");
+  menu.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+};
+
+PP.closeMobileMenu = () => {
+  const menu = document.getElementById("mobile-menu");
+  if (!menu) return;
+  menu.classList.remove("open");
+  menu.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+};
+
+/* Delegated once — survives HTMX header swaps (iPad / iOS Safari) */
+PP.bindMobileMenu = () => {
+  if (PP._mobileMenuBound) return;
+  PP._mobileMenuBound = true;
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (e.target.closest("#menu-open")) {
+        e.preventDefault();
+        PP.openMobileMenu();
+        return;
+      }
+      if (e.target.closest("#menu-close")) {
+        e.preventDefault();
+        PP.closeMobileMenu();
+        return;
+      }
+      const menu = document.getElementById("mobile-menu");
+      if (menu?.classList.contains("open") && e.target === menu) {
+        PP.closeMobileMenu();
+      }
+    },
+    { passive: false }
+  );
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") PP.closeMobileMenu();
+  });
+};
+
 PP.initLayout = async () => {
   PP.initPageTransitions();
   PP.initStickyCtaOffset();
   PP.initFooterAccordion();
+  PP.bindMobileMenu();
 
   const path = location.pathname;
   PP.NAV.forEach((l) => {
@@ -219,13 +267,9 @@ PP.initLayout = async () => {
     });
   });
 
-  const burger = document.getElementById("menu-open");
-  const close = document.getElementById("menu-close");
   const menu = document.getElementById("mobile-menu");
-  if (burger && menu) {
-    burger.addEventListener("click", () => { menu.classList.add("open"); document.body.style.overflow = "hidden"; });
-    close?.addEventListener("click", () => { menu.classList.remove("open"); document.body.style.overflow = ""; });
-    menu.addEventListener("click", (e) => { if (e.target === menu) { menu.classList.remove("open"); document.body.style.overflow = ""; } });
+  if (menu && !menu.classList.contains("open")) {
+    menu.setAttribute("aria-hidden", "true");
   }
 
   await PP.updateAuthHeader();

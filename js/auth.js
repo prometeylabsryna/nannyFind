@@ -273,56 +273,94 @@ PP.initGoogleOAuth = (clientId) => {
   if (!btn || btn.dataset.oauthReady) return;
   btn.dataset.oauthReady = "1";
 
+  const gsiSrc = "https://accounts.google.com/gsi/client";
+
   const loadScript = () =>
     new Promise((resolve, reject) => {
-      if (window.google?.accounts?.id) {
+      if (window.google?.accounts?.oauth2) {
         resolve();
         return;
       }
+
+      const finish = () => {
+        if (window.google?.accounts?.oauth2) resolve();
+        else reject(new Error("Google OAuth API unavailable"));
+      };
+
+      const existing = document.querySelector(`script[src="${gsiSrc}"]`);
+      if (existing) {
+        if (window.google?.accounts?.oauth2) {
+          resolve();
+          return;
+        }
+        existing.addEventListener("load", finish, { once: true });
+        existing.addEventListener("error", () => reject(new Error("GSI load failed")), { once: true });
+        return;
+      }
+
       const s = document.createElement("script");
-      s.src = "https://accounts.google.com/gsi/client";
+      s.src = gsiSrc;
       s.async = true;
-      s.onload = resolve;
-      s.onerror = reject;
+      s.onload = finish;
+      s.onerror = () => reject(new Error("GSI load failed"));
       document.head.appendChild(s);
     });
 
+  let tokenClient = null;
+
+  const unlockBtn = () => {
+    btn.dataset.oauthBusy = "0";
+    btn.disabled = false;
+  };
+
   btn.addEventListener("click", async () => {
+    if (btn.dataset.oauthBusy === "1") return;
+    btn.dataset.oauthBusy = "1";
     btn.disabled = true;
+
     try {
       await loadScript();
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: async (response) => {
-          try {
-            await PP.completeOAuthLogin("google", { id_token: response.credential });
-          } catch (err) {
-            PP.showToast(err.message || "Помилка OAuth", "error");
-            btn.disabled = false;
-          }
-        },
-      });
-      window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          window.google.accounts.oauth2
-            .initTokenClient({
-              client_id: clientId,
-              scope: "email profile openid",
-              callback: async (tokenResponse) => {
-                try {
-                  await PP.completeOAuthLogin("google", { access_token: tokenResponse.access_token });
-                } catch (err) {
-                  PP.showToast(err.message || "Помилка OAuth", "error");
-                  btn.disabled = false;
+
+      if (!tokenClient) {
+        tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: "openid email profile",
+          callback: async (tokenResponse) => {
+            try {
+              if (tokenResponse.error) {
+                if (
+                  tokenResponse.error !== "access_denied" &&
+                  tokenResponse.error !== "popup_closed_by_user"
+                ) {
+                  PP.showToast(tokenResponse.error_description || "Помилка Google OAuth", "error");
                 }
-              },
-            })
-            .requestAccessToken();
-        }
-      });
+                return;
+              }
+              if (!tokenResponse.access_token) {
+                PP.showToast("Не отримано Google token.", "error");
+                return;
+              }
+              await PP.completeOAuthLogin("google", { access_token: tokenResponse.access_token });
+            } catch (err) {
+              PP.showToast(err.message || "Помилка OAuth", "error");
+            } finally {
+              unlockBtn();
+            }
+          },
+          error_callback: (err) => {
+            const type = err?.type || "";
+            if (type && type !== "popup_closed" && type !== "popup_failed_to_open") {
+              PP.showToast("Не вдалося відкрити вікно Google.", "error");
+            }
+            unlockBtn();
+          },
+        });
+      }
+
+      tokenClient.requestAccessToken({ prompt: "select_account" });
     } catch {
       PP.showToast("Не вдалося завантажити Google OAuth.", "error");
-      btn.disabled = false;
+      unlockBtn();
     }
   });
 };
@@ -396,12 +434,19 @@ PP.initFacebookOAuth = (appId, btns) => {
   if (!btn || btn.dataset.oauthReady) return;
   btn.dataset.oauthReady = "1";
 
+  const unlockBtn = () => {
+    btn.dataset.oauthBusy = "0";
+    btn.disabled = false;
+  };
+
   // Preload SDK before click so FB.login runs inside a real user gesture.
   PP.ensureFacebookSdk(appId).catch((err) => {
     console.error("Facebook SDK preload failed", err);
   });
 
   btn.addEventListener("click", () => {
+    if (btn.dataset.oauthBusy === "1") return;
+
     if (!window.FB?.login) {
       PP.showToast("Facebook ще завантажується. Спробуйте ще раз через секунду.", "error");
       PP.ensureFacebookSdk(appId).catch((err) => {
@@ -411,23 +456,26 @@ PP.initFacebookOAuth = (appId, btns) => {
       return;
     }
 
+    btn.dataset.oauthBusy = "1";
     btn.disabled = true;
     try {
       window.FB.login(
         async (response) => {
-          if (!response?.authResponse?.accessToken) {
-            btn.disabled = false;
-            if (response?.status === "unknown") {
-              PP.showToast("Вхід через Facebook скасовано або заблоковано браузером.", "error");
-            }
-            return;
-          }
           try {
-            await PP.completeOAuthLogin("facebook", { access_token: response.authResponse.accessToken });
+            if (!response?.authResponse?.accessToken) {
+              if (response?.status === "unknown") {
+                PP.showToast("Вхід через Facebook скасовано або заблоковано браузером.", "error");
+              }
+              return;
+            }
+            await PP.completeOAuthLogin("facebook", {
+              access_token: response.authResponse.accessToken,
+            });
           } catch (err) {
             console.error("Facebook OAuth backend error", err);
             PP.showToast(err.message || "Помилка OAuth", "error");
-            btn.disabled = false;
+          } finally {
+            unlockBtn();
           }
         },
         { scope: "email,public_profile", return_scopes: true }
@@ -435,7 +483,7 @@ PP.initFacebookOAuth = (appId, btns) => {
     } catch (err) {
       console.error("Facebook login error", err);
       PP.showToast(err.message || "Помилка входу через Facebook", "error");
-      btn.disabled = false;
+      unlockBtn();
     }
   });
 };

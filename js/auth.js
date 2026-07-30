@@ -459,24 +459,24 @@ PP.initFacebookOAuth = (appId, btns) => {
     btn.dataset.oauthBusy = "1";
     btn.disabled = true;
     try {
+      // FB.login вимагає звичайну function — async function відхиляє SDK.
       window.FB.login(
-        async (response) => {
-          try {
-            if (!response?.authResponse?.accessToken) {
-              if (response?.status === "unknown") {
-                PP.showToast("Вхід через Facebook скасовано або заблоковано браузером.", "error");
-              }
-              return;
+        (response) => {
+          if (!response?.authResponse?.accessToken) {
+            if (response?.status === "unknown") {
+              PP.showToast("Вхід через Facebook скасовано або заблоковано браузером.", "error");
             }
-            await PP.completeOAuthLogin("facebook", {
-              access_token: response.authResponse.accessToken,
-            });
-          } catch (err) {
-            console.error("Facebook OAuth backend error", err);
-            PP.showToast(err.message || "Помилка OAuth", "error");
-          } finally {
             unlockBtn();
+            return;
           }
+          PP.completeOAuthLogin("facebook", {
+            access_token: response.authResponse.accessToken,
+          })
+            .catch((err) => {
+              console.error("Facebook OAuth backend error", err);
+              PP.showToast(err.message || "Помилка OAuth", "error");
+            })
+            .finally(unlockBtn);
         },
         { scope: "email,public_profile", return_scopes: true }
       );

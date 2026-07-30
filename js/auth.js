@@ -327,49 +327,114 @@ PP.initGoogleOAuth = (clientId) => {
   });
 };
 
+PP.ensureFacebookSdk = (appId) => {
+  if (PP._fbSdkPromise) return PP._fbSdkPromise;
+
+  PP._fbSdkPromise = new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      fn(value);
+    };
+
+    const initSdk = () => {
+      try {
+        if (!PP._fbInited) {
+          window.FB.init({
+            appId: String(appId),
+            cookie: true,
+            xfbml: false,
+            version: "v19.0",
+          });
+          PP._fbInited = true;
+        }
+        done(resolve, window.FB);
+      } catch (err) {
+        if (window.FB?.login) done(resolve, window.FB);
+        else done(reject, err);
+      }
+    };
+
+    if (window.FB?.init) {
+      initSdk();
+      return;
+    }
+
+    const prevInit = window.fbAsyncInit;
+    window.fbAsyncInit = () => {
+      try {
+        if (typeof prevInit === "function") prevInit();
+      } catch {
+        /* ignore previous init errors */
+      }
+      initSdk();
+    };
+
+    const existing = document.querySelector('script[data-pp-fb-sdk="1"]');
+    if (!existing) {
+      const s = document.createElement("script");
+      s.src = "https://connect.facebook.net/uk_UA/sdk.js";
+      s.async = true;
+      s.dataset.ppFbSdk = "1";
+      s.onerror = () => done(reject, new Error("Не вдалося завантажити Facebook SDK"));
+      document.head.appendChild(s);
+    }
+
+    window.setTimeout(() => {
+      if (!window.FB?.login) {
+        done(reject, new Error("Таймаут завантаження Facebook SDK"));
+      }
+    }, 15000);
+  });
+
+  return PP._fbSdkPromise;
+};
+
 PP.initFacebookOAuth = (appId, btns) => {
   const btn = [...btns].find((b) => b.dataset.provider === "facebook");
   if (!btn || btn.dataset.oauthReady) return;
   btn.dataset.oauthReady = "1";
 
-  const loadScript = () =>
-    new Promise((resolve) => {
-      if (window.FB) {
-        resolve();
-        return;
-      }
-      window.fbAsyncInit = () => {
-        window.FB.init({ appId, cookie: true, xfbml: false, version: "v19.0" });
-        resolve();
-      };
-      const s = document.createElement("script");
-      s.src = "https://connect.facebook.net/uk_UA/sdk.js";
-      s.async = true;
-      s.defer = true;
-      document.head.appendChild(s);
-    });
+  // Preload SDK before click so FB.login runs inside a real user gesture.
+  PP.ensureFacebookSdk(appId).catch((err) => {
+    console.error("Facebook SDK preload failed", err);
+  });
 
-  btn.addEventListener("click", async () => {
+  btn.addEventListener("click", () => {
+    if (!window.FB?.login) {
+      PP.showToast("Facebook ще завантажується. Спробуйте ще раз через секунду.", "error");
+      PP.ensureFacebookSdk(appId).catch((err) => {
+        console.error("Facebook SDK load failed", err);
+        PP.showToast(err.message || "Не вдалося завантажити Facebook SDK.", "error");
+      });
+      return;
+    }
+
     btn.disabled = true;
     try {
-      await loadScript();
       window.FB.login(
         async (response) => {
-          if (!response.authResponse?.accessToken) {
+          if (!response?.authResponse?.accessToken) {
             btn.disabled = false;
+            if (response?.status === "unknown") {
+              PP.showToast("Вхід через Facebook скасовано або заблоковано браузером.", "error");
+            }
             return;
           }
           try {
             await PP.completeOAuthLogin("facebook", { access_token: response.authResponse.accessToken });
           } catch (err) {
+            console.error("Facebook OAuth backend error", err);
             PP.showToast(err.message || "Помилка OAuth", "error");
             btn.disabled = false;
           }
         },
-        { scope: "email,public_profile" }
+        { scope: "email,public_profile", return_scopes: true }
       );
-    } catch {
-      PP.showToast("Не вдалося завантажити Facebook SDK.", "error");
+    } catch (err) {
+      console.error("Facebook login error", err);
+      PP.showToast(err.message || "Помилка входу через Facebook", "error");
       btn.disabled = false;
     }
   });

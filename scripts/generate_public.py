@@ -338,7 +338,6 @@ page("login.html", "Вхід", "Вхід", f"""
   <div class="auth-oauth">
     <button type="button" class="auth-oauth-btn" data-provider="google">G Google</button>
     <button type="button" class="auth-oauth-btn" data-provider="facebook">f Facebook</button>
-    <button type="button" class="auth-oauth-btn" data-provider="apple"> Apple</button>
   </div>
   <div class="auth-divider">або email</div>
   <p class="auth-error" id="login-error" role="alert" hidden></p>
@@ -362,7 +361,6 @@ page("register.html", "Реєстрація", "Реєстрація", f"""
   <div class="auth-oauth">
     <button type="button" class="auth-oauth-btn" data-provider="google">G Google</button>
     <button type="button" class="auth-oauth-btn" data-provider="facebook">f FB</button>
-    <button type="button" class="auth-oauth-btn" data-provider="apple"> Apple</button>
   </div>
   <div class="auth-divider">або email</div>
   <form class="auth-form" id="register-form">
